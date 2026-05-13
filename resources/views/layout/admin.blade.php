@@ -28,11 +28,15 @@
             <a href="{{ route('admin.events.index') }}" class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.events.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
                 Kelola Event
             </a>
-
+            {{-- Kelola Partner (Tambahkan Ini) --}}
+<a href="{{ route('partners.index') }}" class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('partners.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
+    Kelola Partner
+</a>
             {{-- Laporan --}}
             <a href="{{ route('admin.transactions') }}" class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.transactions') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
                 Laporan
             </a>
+            
         </nav>
         <div class="pt-6 border-t border-indigo-800">
             <a href="{{ url('/') }}" class="flex items-center gap-3 px-4 py-3 text-indigo-300 hover:text-white transition font-medium">
