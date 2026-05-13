@@ -9,6 +9,7 @@ use App\Http\Controllers\EventController;
 // Import Controller Admin
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController as EventAdminController;
+use App\Http\Controllers\PartnerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,4 +43,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     
     // Laporan Transaksi (Nama disesuaikan dengan sidebar kamu)
     Route::get('/transactions', [DashboardController::class, 'transactions'])->name('transactions');
+   
+
+Route::get('/admin/partners', [PartnerController::class, 'index'])->name('partners.index');
+Route::post('/admin/partners/store', [PartnerController::class, 'store'])->name('partners.store');
 });
