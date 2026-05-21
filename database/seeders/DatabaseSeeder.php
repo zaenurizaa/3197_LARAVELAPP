@@ -8,14 +8,14 @@ class DatabaseSeeder extends Seeder
 {
 public function run(): void
 {
-// 1. Akun Admin Utama
+
 \App\Models\User::create([
 'name' => 'Admin Amikom',
 'email' => 'admin@amikom.ac.id',
 'password' => bcrypt('password'),
 'role' => 'admin',
 ]);
-// 2. Insert Kategori Event
+
 $category = \App\Models\Category::create([
     'name' => 'Seminar IT',
     'slug' => 'seminar-it',
@@ -38,7 +38,7 @@ $category = \App\Models\Category::create([
                     ]);
 
         
-        // 3. Insert Sampel Events
+        
         \App\Models\Event::create([
         'category_id' => $category2->id,
         'title' => 'Jazz Night 2025',

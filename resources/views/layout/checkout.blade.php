@@ -5,7 +5,7 @@
 @section('content')
     <main class="max-w-3xl mx-auto px-6 py-20">
         <div class="mb-12">
-            {{-- Tambahkan ID dummy 1 agar tidak error --}}
+            
             <a href="{{ route('events.show', 1) }}" class="text-indigo-600 font-bold flex items-center gap-2 mb-6">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
@@ -81,7 +81,7 @@
         class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
         <div class="bg-white w-full max-w-sm rounded-4xl overflow-hidden shadow-2xl animate-bounce-in">
             <div class="bg-slate-50 p-6 flex justify-between items-center border-b">
-{{-- Panggil logo dari folder posters di storage --}}
+
 <img src="{{ Storage::url('posters/midtrans.png') }}" alt="Midtrans Logo" class="h-6">                <button onclick="hideMidtrans()" class="p-2 hover:bg-slate-200 rounded-full">
                 <img src="https://midtrans.com/assets/img/logo-dark.png" alt="Midtrans Logo" class="h-6">
                 <button onclick="hideMidtrans()" class="p-2 hover:bg-slate-200 rounded-full">

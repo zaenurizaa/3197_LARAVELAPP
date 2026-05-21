@@ -1,7 +1,7 @@
 @extends('layout.app')
 
 @section('content')
-    {{-- Hero Section --}}
+    
     <section class="max-w-7xl mx-auto px-6 py-20 flex flex-col md:flex-row items-center gap-12">
         <div class="flex-1 space-y-8">
             <span class="inline-block px-4 py-1.5 bg-indigo-100 text-indigo-700 rounded-full text-sm font-bold uppercase tracking-wider">#1 Event Platform</span>
@@ -22,7 +22,7 @@
         </div>
     </section>
 
-    {{-- Events Section --}}
+    
     <section id="events" class="max-w-7xl mx-auto px-6 py-20">
         <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
             <div>
@@ -30,7 +30,7 @@
                 <p class="text-slate-500 font-medium">Jangan sampai ketinggalan acara seru minggu ini!</p>
             </div>
 
-            {{-- 1. Blok Navigasi Filter Kategori Dinamis --}}
+            
             <div class="flex gap-2 flex-wrap">
                 <a href="{{ url('/') }}#events" 
                    class="px-5 py-2 {{ !request('category') ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-slate-600' }} rounded-xl font-bold transition">
@@ -45,18 +45,18 @@
             </div>
         </div>
 
-        {{-- 2. Zona Menampilkan Grid List Event Dinamis --}}
+        
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             @forelse($events as $event)
                 <div class="group bg-white rounded-3xl border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-300 overflow-hidden">
                     <div class="relative overflow-hidden aspect-3/4">
-                        {{-- Menampilkan gambar dari storage --}}
+                        
                         <img src="{{ Storage::url($event->poster_path) }}" 
                              alt="{{ $event->title }}" 
                              class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                              onerror="this.src='https://placehold.co/400x600?text=No+Image'">
                         
-                        {{-- 3. Memanggil Nama Kategori lewat Relasi --}}
+                        
                         <div class="absolute top-4 left-4 px-3 py-1 bg-white/90 backdrop-blur rounded-lg text-xs font-bold uppercase text-indigo-600 shadow-sm">
                             {{ $event->category->name }}
                         </div>
@@ -79,7 +79,7 @@
                     </div>
                 </div>
             @empty
-                {{-- Tampilan jika hasil filter kosong --}}
+                
                 <div class="col-span-full py-20 text-center">
                     <p class="text-slate-400 font-bold text-xl">Yah, belum ada event di kategori ini :) </p>
                     <a href="{{ url('/') }}" class="text-indigo-600 underline">Lihat semua event</a>
@@ -88,7 +88,7 @@
         </div>
     </section>
 
-    {{-- Partner Resmi Section --}}
+    
     <section class="max-w-7xl mx-auto px-6 py-16 border-t border-slate-100 mt-12">
         <div class="text-center max-w-xl mx-auto mb-10">
             <span class="inline-block px-3 py-1 bg-indigo-50 text-indigo-600 rounded-full text-xs font-bold uppercase tracking-wider mb-3">

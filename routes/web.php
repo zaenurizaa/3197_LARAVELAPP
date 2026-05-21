@@ -2,11 +2,11 @@
 
 use Illuminate\Support\Facades\Route;
 
-// Import Controller User
+
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EventController;
 
-// Import Controller Admin
+
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController as EventAdminController;
 use App\Http\Controllers\PartnerController;
@@ -34,17 +34,17 @@ Route::get('/my-ticket', [EventController::class, 'ticket'])->name('ticket');
 */
 Route::prefix('admin')->name('admin.')->group(function () {
     
-    // Halaman Utama Admin (Dashboard)
+    
     Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
     
-    // Rute Modul Event (Otomatis)
+    
     Route::resource('events', EventAdminController::class);
     
-    // Laporan Transaksi
+    
     Route::get('/transactions', [DashboardController::class, 'transactions'])->name('transactions');
 
-    // ===================================================================
-    // ===================================================================
+    
+    
     Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
     Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
     Route::get('/categories/{id}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
@@ -53,8 +53,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
 
 });
 
-// =======================================================================
-// =======================================================================
+
+
 Route::get('/admin/partners', [PartnerController::class, 'index'])->name('partners.index');
 Route::post('/admin/partners/store', [PartnerController::class, 'store'])->name('partners.store');
 Route::get('/admin/partners/{id}/edit', [PartnerController::class, 'edit'])->name('partners.edit');

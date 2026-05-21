@@ -7,7 +7,7 @@
 @section('content')
 <div class="space-y-8">
     
-    {{-- Blok Form Tambah Kategori Baru --}}
+    
     <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
         <h2 class="text-xl font-bold mb-4 text-slate-800">Tambah Kategori Baru</h2>
         <form action="{{ route('admin.categories.store') }}" method="POST" class="flex flex-col md:flex-row gap-4 items-end">
@@ -23,10 +23,10 @@
         </form>
     </div>
 
-    {{-- Blok Tabel Data & Pencarian --}}
+    
     <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
         
-        {{-- Bar Pencarian Konten --}}
+        
         <div class="p-6 border-b border-slate-50 bg-slate-50/50">
             <form action="{{ route('admin.categories.index') }}" method="GET" class="flex gap-3 max-w-md">
                 <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama kategori..."
@@ -42,7 +42,7 @@
             </form>
         </div>
 
-        {{-- Tabel Utama Kategori --}}
+        
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
                 <thead>
@@ -61,14 +61,14 @@
                             </td>
                             <td class="py-4 px-6">
                                 <div class="flex justify-center gap-2">
-                                    {{-- Tombol Edit Menuju Halaman Baru --}}
+                                    
                                     <a href="{{ route('admin.categories.edit', $cat->id) }}" title="Edit Kategori" class="p-2 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                         </svg>
                                     </a>
 
-                                    {{-- Form Tombol Hapus --}}
+                                    
                                     <form action="{{ route('admin.categories.destroy', $cat->id) }}" method="POST" onsubmit="return confirm('Yakin ingin menghapus kategori ini?')" class="inline">
                                         @csrf
                                         @method('DELETE')

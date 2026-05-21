@@ -8,11 +8,9 @@ use Illuminate\Http\Request;
 class PartnerController extends Controller
 {
     /**
-     * Menampilkan daftar partner lengkap dengan fitur pencarian (Soal 3)
      */
     public function index(Request $request)
     {
-        // Fitur Pencarian Partner (Soal 3)
         $search = $request->input('search');
 
         $partners = Partner::when($search, function ($query, $search) {
@@ -23,7 +21,6 @@ class PartnerController extends Controller
     }
 
     /**
-     * Menyimpan data partner baru ke database (Soal 2)
      */
     public function store(Request $request)
     {
@@ -37,7 +34,6 @@ class PartnerController extends Controller
     }
 
     /**
-     * Menampilkan halaman edit form partner berdasarkan ID
      */
     public function edit(int $id)
     {
@@ -46,7 +42,6 @@ class PartnerController extends Controller
     }
 
     /**
-     * Memperbarui data partner di database berdasarkan ID
      */
     public function update(Request $request, int $id)
     {
@@ -58,11 +53,9 @@ class PartnerController extends Controller
         $partner = Partner::findOrFail($id);
         $partner->update($request->only('name', 'logo_url'));
 
-        // KODE YANG BENAR
         return redirect()->route('partners.index')->with('success', 'Data Partner berhasil diperbarui!');    }
 
     /**
-     * Menghapus data partner dari database berdasarkan ID
      */
     public function destroy(int $id)
     {

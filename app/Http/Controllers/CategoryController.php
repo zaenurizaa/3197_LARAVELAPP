@@ -12,7 +12,7 @@ class CategoryController extends Controller
      */
     public function index(Request $request)
     {
-        // Fitur Pencarian (Soal 3)
+        
         $search = $request->input('search');
         
         $categories = Category::when($search, function ($query, $search) {
@@ -39,7 +39,6 @@ class CategoryController extends Controller
     }
 
     /**
-     * Menampilkan halaman edit form kategori berdasarkan ID (Baru)
      */
     public function edit(int $id)
     {
@@ -61,7 +60,6 @@ class CategoryController extends Controller
             'slug' => Str::slug($request->name)
         ]);
 
-        // Dialihkan ke halaman index admin categories agar serasi dengan partner
         return redirect()->route('admin.categories.index')->with('success', 'Kategori berhasil diperbarui!');
     }
 

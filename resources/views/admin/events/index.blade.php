@@ -33,7 +33,7 @@
                     <td class="px-8 py-6">
                         <div class="w-16 h-20 rounded-xl overflow-hidden shadow-sm border border-slate-100 bg-slate-50">
                             @if($event->poster_path)
-                            {{-- PERBAIKAN: Gunakan $event->poster_path (bukan $events) --}}
+                            
                             <img src="{{ Storage::url($event->poster_path) }}"
                                 class="w-full h-full object-cover"
                                 onerror="this.src='https://placehold.co/160x200?text=Not+Found'">

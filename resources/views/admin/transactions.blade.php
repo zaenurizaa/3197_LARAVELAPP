@@ -2,7 +2,7 @@
 
 @section('title', 'Laporan Transaksi')
 
-{{-- UBAH DUA BARIS INI --}}
+
 @section('page_title', 'Laporan Transaksi')
 @section('page_subtitle', 'Pantau arus kas dan penjualan tiket Anda.')
 

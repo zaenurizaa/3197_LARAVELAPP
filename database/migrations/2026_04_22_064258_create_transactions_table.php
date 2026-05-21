@@ -14,7 +14,7 @@ return new class extends Migration
     Schema::create('transactions', function (Blueprint $table) {
     $table->id();
     $table->foreignId('event_id')->constrained()->cascadeOnDelete();
-$table->string('order_id')->unique(); // No Pesanan unik
+$table->string('order_id')->unique(); 
 $table->string('customer_name');
 $table->string('customer_email');
 $table->string('customer_phone');

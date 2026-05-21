@@ -4,12 +4,12 @@
 @section('page_title', 'Kelola Partner')
 @section('page_subtitle', 'Manajemen kemitraan AmikomEventHub')
 
-{{-- Tambahkan script ikon di sini --}}
+
 <script src="https://unpkg.com/lucide@latest"></script>
 
 @section('content')
 <div class="space-y-8">
-    {{-- Form Tambah Partner --}}
+    
     <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
         <h2 class="text-xl font-bold mb-6">Tambah Partner Baru</h2>
         <form action="{{ route('partners.store') }}" method="POST" class="flex flex-col md:flex-row gap-4 items-end">
@@ -61,13 +61,13 @@
                     <td class="px-6 py-4 font-bold text-slate-700">{{ $partner->name }}</td>
                     <td class="px-6 py-4">
                         <div class="flex justify-center gap-3">
-                            {{-- Tombol Edit (Ikon Biru) --}}
+                            
                             <a href="{{ route('partners.edit', $partner->id) }}" 
                                class="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition shadow-sm">
                                 <i data-lucide="file-edit" class="w-5 h-5"></i>
                             </a>
 
-                            {{-- Tombol Hapus (Ikon Merah) --}}
+                            
                             <form action="{{ route('partners.destroy', $partner->id) }}" method="POST" onsubmit="return confirm('Yakin hapus?')">
                                 @csrf
                                 @method('DELETE')
@@ -91,7 +91,7 @@
     </div>
 </div>
 
-{{-- Inisialisasi Ikon --}}
+
 <script>
     lucide.createIcons();
 </script>

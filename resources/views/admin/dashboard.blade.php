@@ -2,7 +2,7 @@
 
 @section('title', 'Dashboard')
 
-{{-- Menyesuaikan dengan yield di layout admin.blade.php --}}
+
 @section('page_title', 'Dashboard Ringkasan')
 @section('page_subtitle', 'Selamat datang kembali, Admin!')
 
@@ -52,7 +52,7 @@
     <div class="bg-white rounded-3xl border border-slate-100 shadow-sm overflow-hidden">
         <div class="p-8 border-b flex justify-between items-center">
             <h3 class="font-black text-xl">Transaksi Terakhir</h3>
-            {{-- PERBAIKAN: Menghapus .index agar sesuai dengan name('transactions') di web.php --}}
+            
             <a href="{{ route('admin.transactions') }}" class="text-indigo-600 font-bold hover:underline">Lihat Semua</a>
         </div>
         <div class="overflow-x-auto">

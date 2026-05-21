@@ -35,7 +35,7 @@
     <footer class="bg-indigo-900 text-indigo-100 py-20 px-6 mt-20">
         <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12">
             
-            {{-- Kolom 1: Branding --}}
+            
             <div class="space-y-4">
                 <div class="flex items-center gap-2">
                     <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-indigo-900 font-bold text-xl">AH</div>
@@ -44,7 +44,7 @@
                 <p class="max-w-xs text-indigo-300 text-sm">Platform reservasi tiket event online terbaik untuk mahasiswa dan penyelenggara profesional.</p>
             </div>
 
-            {{-- Kolom 2: Kategori Dinamis --}}
+            
             <div>
                 <h4 class="text-white font-bold mb-6">Kategori</h4>
                 <ul class="space-y-4 text-sm">
@@ -59,7 +59,7 @@
                 </ul>
             </div>
 
-            {{-- Kolom 3: Navigasi --}}
+            
             <div>
                 <h4 class="text-white font-bold mb-6">Navigasi</h4>
                 <ul class="space-y-4 text-sm text-indigo-300">
@@ -69,7 +69,7 @@
                 </ul>
             </div>
             
-            {{-- Kolom 4: Hubungi Kami --}}
+            
             <div>
                 <h4 class="text-white font-bold mb-6">Hubungi Kami</h4>
                 <ul class="space-y-4 text-sm text-indigo-300">
