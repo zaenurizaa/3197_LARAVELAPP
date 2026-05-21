@@ -7,52 +7,68 @@ use Illuminate\Http\Request;
 
 class PartnerController extends Controller
 {
-    public function index()
+    /**
+     * Menampilkan daftar partner lengkap dengan fitur pencarian (Soal 3)
+     */
+    public function index(Request $request)
     {
-        $partners = Partner::all();
+        // Fitur Pencarian Partner (Soal 3)
+        $search = $request->input('search');
+
+        $partners = Partner::when($search, function ($query, $search) {
+            return $query->where('name', 'LIKE', '%' . $search . '%');
+        })->get();
+
         return view('admin.partners.index', compact('partners'));
     }
+
+    /**
+     * Menyimpan data partner baru ke database (Soal 2)
+     */
     public function store(Request $request)
-{
-    // Validasi sederhana
-    $request->validate([
-        'name' => 'required',
-        'logo_url' => 'required'
-    ]);
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'logo_url' => 'nullable|string'
+        ]);
 
-    // Simpan ke Database
-    Partner::create([
-        'name' => $request->name,
-        'logo_url' => $request->logo_url
-    ]);
+        Partner::create($request->only('name', 'logo_url'));
+        return redirect()->back()->with('success', 'Partner baru sukses didaftarkan!');
+    }
 
-    // Redirect kembali ke halaman utama dengan pesan sukses
-    return redirect()->route('partners.index')->with('success', 'Partner berhasil ditambahkan!');
-}
-// Menampilkan halaman edit
-public function edit($id) {
-    $partner = Partner::findOrFail($id);
-    return view('admin.partners.edit', compact('partner'));
-}
+    /**
+     * Menampilkan halaman edit form partner berdasarkan ID
+     */
+    public function edit(int $id)
+    {
+        $partner = Partner::findOrFail($id);
+        return view('admin.partners.edit', compact('partner'));
+    }
 
-// Memproses perubahan data
-public function update(Request $request, $id) {
-    $request->validate([
-        'name' => 'required',
-        'logo_url' => 'required'
-    ]);
+    /**
+     * Memperbarui data partner di database berdasarkan ID
+     */
+    public function update(Request $request, int $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'logo_url' => 'nullable|string'
+        ]);
 
-    $partner = Partner::findOrFail($id);
-    $partner->update($request->all());
+        $partner = Partner::findOrFail($id);
+        $partner->update($request->only('name', 'logo_url'));
 
-    return redirect()->route('partners.index')->with('success', 'Partner berhasil diupdate!');
-}
+        // KODE YANG BENAR
+        return redirect()->route('partners.index')->with('success', 'Data Partner berhasil diperbarui!');    }
 
-// Menghapus data
-public function destroy($id) {
-    $partner = Partner::findOrFail($id);
-    $partner->delete();
+    /**
+     * Menghapus data partner dari database berdasarkan ID
+     */
+    public function destroy(int $id)
+    {
+        $partner = Partner::findOrFail($id);
+        $partner->delete();
 
-    return redirect()->route('partners.index')->with('success', 'Partner berhasil dihapus!');
-}
+        return redirect()->back()->with('success', 'Partner berhasil dihapus dari sistem!');
+    }
 }

@@ -24,15 +24,21 @@
                 Dashboard
             </a>
 
-            {{-- Kelola Event (Diperbaiki ke .index) --}}
+            {{-- Kelola Event --}}
             <a href="{{ route('admin.events.index') }}" class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.events.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
                 Kelola Event
             </a>
 
-            {{-- Kelola Partner (Tambahkan Ini) --}}
-<a href="{{ route('partners.index') }}" class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('partners.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
-    Kelola Partner
-</a>
+            {{-- SOAL 1 UTS: Menu Kelola Kategori (Baru Disisipkan) --}}
+            <a href="{{ route('admin.categories.index') }}" class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.categories.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
+                Kelola Kategori
+            </a>
+
+            {{-- Kelola Partner --}}
+            <a href="{{ route('partners.index') }}" class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('partners.*') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
+                Kelola Partner
+            </a>
+
             {{-- Laporan --}}
             <a href="{{ route('admin.transactions') }}" class="flex items-center gap-3 px-4 py-3 {{ request()->routeIs('admin.transactions') ? 'bg-indigo-800 text-white' : 'hover:bg-indigo-800' }} rounded-xl font-bold transition">
                 Laporan

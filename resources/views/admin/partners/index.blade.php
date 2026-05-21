@@ -9,7 +9,7 @@
 
 @section('content')
 <div class="space-y-8">
-    {{-- Form Tambah Partner Tetap Sama --}}
+    {{-- Form Tambah Partner --}}
     <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100">
         <h2 class="text-xl font-bold mb-6">Tambah Partner Baru</h2>
         <form action="{{ route('partners.store') }}" method="POST" class="flex flex-col md:flex-row gap-4 items-end">
@@ -28,7 +28,21 @@
         </form>
     </div>
 
-    {{-- Tabel Partner dengan Tombol Aksi Ikon --}}
+    <div class="flex justify-between items-center gap-4">
+        <form action="{{ route('partners.index') }}" method="GET" class="flex gap-2 w-full md:w-96">
+            <div class="relative w-full">
+                <input type="text" name="search" value="{{ request('search') }}" placeholder="Cari nama partner..." 
+                       class="w-full pl-4 pr-10 py-2.5 rounded-xl bg-white border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 text-sm transition">
+                @if(request('search'))
+                    <a href="{{ route('partners.index') }}" class="absolute right-3 top-3 text-slate-400 hover:text-slate-600 text-xs font-semibold">Clear</a>
+                @endif
+            </div>
+            <button type="submit" class="px-6 py-2 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition shadow-lg shadow-indigo-100">
+                Cari
+            </button>
+        </form>
+    </div>
+
     <div class="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">
         <table class="w-full text-left border-collapse">
             <thead class="bg-slate-50 border-b border-slate-100">
@@ -39,7 +53,7 @@
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-100">
-                @foreach($partners as $partner)
+                @forelse($partners as $partner)
                 <tr class="hover:bg-slate-50/50 transition">
                     <td class="px-6 py-4 text-center w-24">
                         <img src="{{ $partner->logo_url }}" class="w-12 h-12 rounded-xl object-cover border border-slate-200">
@@ -65,7 +79,13 @@
                         </div>
                     </td>
                 </tr>
-                @endforeach
+                @empty
+                <tr>
+                    <td colspan="3" class="px-6 py-10 text-center text-slate-400 text-sm italic">
+                        Data partner tidak ditemukan atau belum ditambahkan.
+                    </td>
+                </tr>
+                @endforelse
             </tbody>
         </table>
     </div>
@@ -73,6 +93,6 @@
 
 {{-- Inisialisasi Ikon --}}
 <script>
-  lucide.createIcons();
+    lucide.createIcons();
 </script>
 @endsection
