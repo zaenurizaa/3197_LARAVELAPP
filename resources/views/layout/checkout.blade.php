@@ -83,6 +83,8 @@
             <div class="bg-slate-50 p-6 flex justify-between items-center border-b">
 {{-- Panggil logo dari folder posters di storage --}}
 <img src="{{ Storage::url('posters/midtrans.png') }}" alt="Midtrans Logo" class="h-6">                <button onclick="hideMidtrans()" class="p-2 hover:bg-slate-200 rounded-full">
+                <img src="https://midtrans.com/assets/img/logo-dark.png" alt="Midtrans Logo" class="h-6">
+                <button onclick="hideMidtrans()" class="p-2 hover:bg-slate-200 rounded-full">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>

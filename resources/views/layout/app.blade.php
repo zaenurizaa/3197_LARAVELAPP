@@ -10,6 +10,14 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
         .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
     </style>
 </head>
 
@@ -25,6 +33,13 @@
         <div class="hidden md:flex gap-8 font-medium">
             <a href="{{ url('/') }}" class="{{ !request('category') ? 'text-indigo-600' : 'hover:text-indigo-600' }} transition">Jelajahi</a>
             <a href="{{ url('/#events') }}" class="{{ request('category') ? 'text-indigo-600' : 'hover:text-indigo-600' }} transition">Kategori</a>
+            <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-xl">
+                AH</div>
+            <span class="text-xl font-bold tracking-tight">AmikomEventHub</span>
+        </div>
+        <div class="hidden md:flex gap-8 font-medium">
+            <a href="{{ route('home') }}" class="text-indigo-600">Jelajahi</a>
+            <a href="#" class="hover:text-indigo-600 transition">Kategori</a>
             <a href="#" class="hover:text-indigo-600 transition">Tentang Kami</a>
         </div>
     </nav>
@@ -74,6 +89,37 @@
             <div>
                 <h4 class="text-white font-bold mb-6">Hubungi Kami</h4>
                 <ul class="space-y-4 text-sm text-indigo-300">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-6 gap-12">
+            <div class="space-y-4 col-span-2">
+                <div class="flex items-center gap-2">
+                    <div class="w-10 h-10 bg-white rounded-xl flex items-center justify-center text-indigo-900 font-bold text-xl">
+                        AH</div>
+                    <span class="text-2xl font-bold text-white">AmikomEventHub</span>
+                </div>
+                <p class="max-w-xs text-indigo-300">Platform reservasi tiket event online terbaik untuk mahasiswa dan penyelenggara profesional.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6">Kategori</h4>
+                <ul class="space-y-4">
+                    <li><a href="{{ url('/?category=seminar-it') }}" class="hover:text-white transition">Seminar IT</a></li>
+                    <li><a href="{{ url('/?category=entertaiment') }}" class="hover:text-white transition">Entertainment</a></li>
+                    <li><a href="{{ url('/?category=hackaton') }}" class="hover:text-white transition">Hackathon</a></li>
+                    <li><a href="{{ url('/?category=workshop') }}" class="hover:text-white transition">workshop</a></li>
+                    <li><a href="{{ url('/?category=uiux') }}" class="hover:text-white transition">UIUX</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6">Navigasi</h4>
+                <ul class="space-y-4">
+                    <li><a href="#" class="hover:text-white transition">Home</a></li>
+                    <li><a href="#" class="hover:text-white transition">Semua Event</a></li>
+                    <li><a href="#" class="hover:text-white transition">Cara Bayar</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="text-white font-bold mb-">Hubungi Kami</h4>
+                <ul class="space-y-">
                     <li>support@eventtiket.com</li>
                     <li>+62 812 3456 7890</li>
                 </ul>
@@ -85,4 +131,7 @@
     </footer>
 @stack('scripts')
 </body>
+    @stack('scripts')
+</body>
+
 </html>
