@@ -53,10 +53,5 @@ Route::prefix('admin')->name('admin.')->group(function () {
     
     // Laporan Transaksi (Nama disesuaikan dengan sidebar kamu)
     Route::get('/transactions', [DashboardController::class, 'transactions'])->name('transactions');
-<<<<<<< HEAD
-=======
-   
 
-
->>>>>>> origin/fitur-partner-3197
 });
