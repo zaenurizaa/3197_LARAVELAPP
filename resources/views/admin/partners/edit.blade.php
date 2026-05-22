@@ -23,8 +23,7 @@
 
             <div class="flex gap-2 pt-2">
                 <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded-xl font-semibold hover:bg-indigo-700 transition">Simpan Perubahan</button>
-                <a href="{{ route('partners.index') }}" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl font-semibold hover:bg-slate-200 transition">Kembali</a>            </div>
-        </form>
+<a href="{{ route('admin.partners.index') }}" class="px-4 py-2 bg-slate-100 text-slate-600 rounded-xl font-semibold hover:bg-slate-200 transition">Kembali</a>        </form>
     </div>
 </div>
 @endsection

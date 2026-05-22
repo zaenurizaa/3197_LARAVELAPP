@@ -53,8 +53,8 @@ class PartnerController extends Controller
         $partner = Partner::findOrFail($id);
         $partner->update($request->only('name', 'logo_url'));
 
-        return redirect()->route('partners.index')->with('success', 'Data Partner berhasil diperbarui!');    }
-
+return redirect()->route('admin.partners.index')->with('success', 'Data Partner berhasil diperbarui!');
+    }
     /**
      */
     public function destroy(int $id)
