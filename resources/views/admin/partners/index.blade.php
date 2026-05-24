@@ -67,7 +67,7 @@
                             </a>
 
                             
-                            <form action="{{ route('admin.zpartners.destroy', $partner->id) }}" method="POST" onsubmit="return confirm('Yakin hapus?')">
+                            <form action="{{ route('admin.partners.destroy', $partner->id) }}" method="POST" onsubmit="return confirm('Yakin hapus?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" 
