@@ -15,7 +15,6 @@ class EventController extends Controller
      */
     public function index()
     {
-        
         $events = Event::with('category')->latest()->paginate(10);
         return view('admin.events.index', compact('events'));
     }
@@ -34,15 +33,16 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        
+        // Berdasarkan Instruksi Modul 9.4.3 (Validasi Diperketat)
         $data = $request->validate([
-            'category_id' => 'required',
+            'category_id' => 'required|exists:categories,id', // Memastikan ID kategori benar-benar ada di DB
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string', // Diubah ke nullable sesuai modul agar fleksibel
             'date' => 'required|date',
             'location' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'stock' => 'required|numeric'
+            'price' => 'required|numeric|min:0', // Ditambahkan min:0 untuk mencegah input minus (-5)
+            'stock' => 'required|numeric|min:1', // Ditambahkan min:1 agar stok masuk akal
+            'poster' => 'nullable|image|max:2048' // Memastikan file berupa gambar & max 2MB
         ]);
 
         if ($request->hasFile('poster')) {
@@ -55,6 +55,7 @@ class EventController extends Controller
     }
 
     /**
+     * Show the form for editing the specified resource.
      */
     public function edit(Event $event)
     {
@@ -67,18 +68,23 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
+        // Berdasarkan Instruksi Modul 9.4.4
         $data = $request->validate([
-            'category_id' => 'required',
+            'category_id' => 'required|exists:categories,id',
             'title' => 'required|string|max:255',
-            'description' => 'required|string',
+            'description' => 'nullable|string',
             'date' => 'required|date',
             'location' => 'required|string|max:255',
-            'price' => 'required|numeric',
-            'stock' => 'required|numeric'
+            'price' => 'required|numeric|min:0', // Validasi diperketat saat update
+            'stock' => 'required|numeric|min:1',
+            'poster' => 'nullable|image|max:2048'
         ]);
 
         if ($request->hasFile('poster')) {
-            if ($event->poster_path) Storage::disk('public')->delete($event->poster_path);
+            // Hapus gambar lama jika sebelumnya sudah memiliki poster (Efisiensi storage server)
+            if ($event->poster_path) {
+                Storage::disk('public')->delete($event->poster_path);
+            }
             $data['poster_path'] = $request->file('poster')->store('posters', 'public');
         }
 
@@ -92,6 +98,7 @@ class EventController extends Controller
      */
     public function destroy(Event $event)
     {
+        // Logika hapus file fisik milikmu sudah sangat tepat & aman!
         if ($event->poster_path) {
             Storage::disk('public')->delete($event->poster_path);
         }

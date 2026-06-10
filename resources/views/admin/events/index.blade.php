@@ -32,21 +32,22 @@
                     </td>
                     <td class="px-8 py-6">
                         <div class="w-16 h-20 rounded-xl overflow-hidden shadow-sm border border-slate-100 bg-slate-50">
-                            @if($event->poster_path)
-                            
-                            <img src="{{ Storage::url($event->poster_path) }}"
-                                class="w-full h-full object-cover"
-                                onerror="this.src='https://placehold.co/160x200?text=Not+Found'">
-                            @else
-                            <img src="https://placehold.co/160x200?text=No+Image"
-                                class="w-full h-full object-cover">
-                            @endif
+                            <img src="{{ ($event->poster_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($event->poster_path))
+                                         ? asset('storage/' . $event->poster_path)
+                                         : 'https://placehold.co/160x200?text=No+Image' }}"
+                                 class="w-full h-full object-cover"
+                                 alt="{{ $event->title }}">
                         </div>
                     </td>
                     <td class="px-8 py-6">
                         <p class="font-black text-slate-800">{{ $event->title }}</p>
                         <p class="text-xs text-slate-400 italic">
-                            {{ $event->category->name ?? 'Uncategorized' }} • {{ $event->date->format('d M Y') }}
+                            {{ $event->category->name ?? 'Uncategorized' }} • 
+                            @if($event->date instanceof \Carbon\Carbon)
+                                {{ $event->date->format('d M Y') }}
+                            @else
+                                {{ \Carbon\Carbon::parse($event->date)->format('d M Y') }}
+                            @endif
                         </p>
                     </td>
                     <td class="px-8 py-6">
