@@ -10,7 +10,7 @@
             <div class="sticky top-32">
                 <img src="{{ ($event->poster_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($event->poster_path))
                              ? asset('storage/' . $event->poster_path)
-                             : 'https://placehold.co/400x600?text=No+Poster' }}" 
+                             : asset('storage/asset_admin/concert.png') }}" 
                      alt="{{ $event->title }}"
                      class="w-full rounded-[2.5rem] shadow-2xl border-8 border-white object-cover aspect-3/4">
                 
@@ -41,7 +41,7 @@
                 </h1>
                 
                 <div class="flex flex-wrap gap-6 text-slate-500 font-medium">
-                    {{-- Tanggal & Waktu Dinamis --}}
+                    {{-- Tanggal & Waktu --}}
                     <div class="flex items-center gap-2">
                         <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
@@ -55,7 +55,7 @@
                         </span>
                     </div>
                     
-                    {{-- Lokasi Dinamis --}}
+                    {{-- Lokasi --}}
                     <div class="flex items-center gap-2">
                         <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
@@ -66,7 +66,7 @@
                 </div>
             </div>
 
-            {{-- Deskripsi Dinamis --}}
+            {{-- Deskripsi --}}
             <div class="prose prose-slate max-w-none">
                 <h3 class="text-2xl font-bold mb-4 text-slate-800">Deskripsi Event</h3>
                 <div class="text-lg text-slate-600 leading-relaxed whitespace-pre-line">
@@ -74,7 +74,7 @@
                 </div>
             </div>
 
-            {{-- Card Transaksi Tiket Dinamis --}}
+            {{-- Card Transaksi Berwarna Indigo Dinamis --}}
             <div class="bg-indigo-600 rounded-[2.5rem] p-8 md:p-12 text-white shadow-2xl shadow-indigo-200 relative overflow-hidden">
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                     <div>
@@ -91,6 +91,7 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
+                            {{-- FIX: Menggunakan $event->stock hasil sinkronisasi database admin --}}
                             @if($event->stock > 0)
                                 Sisa kapasitas slot: <span class="font-bold underline">{{ $event->stock }} Tiket lagi!</span>
                             @else
@@ -99,16 +100,16 @@
                         </p>
                     </div>
                     
-                    {{-- Aksi Pembelian --}}
                     <div>
+                        {{-- FIX: Logika pengkondisian tombol memesan menggunakan stok aktif --}}
                         @if($event->stock > 0)
-                            <a href="{{ route('checkout') }}?event_id={{ $event->id }}"
-                                class="inline-block px-10 py-5 bg-white text-indigo-600 rounded-2xl font-black text-xl hover:scale-105 transition-transform shadow-xl">
+                            <a href="{{ route('checkout.create', $event->id) }}"
+                               class="inline-block px-10 py-5 bg-white text-indigo-600 rounded-2xl font-black text-xl hover:scale-105 transition-transform shadow-xl">
                                 Pesan Sekarang
                             </a>
                         @else
                             <button disabled 
-                                class="inline-block px-10 py-5 bg-slate-300 text-slate-500 rounded-2xl font-black text-xl cursor-not-allowed shadow-inner">
+                                    class="inline-block px-10 py-5 bg-slate-300 text-slate-500 rounded-2xl font-black text-xl cursor-not-allowed shadow-inner">
                                 Habis Terjual
                             </button>
                         @endif

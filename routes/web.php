@@ -2,12 +2,16 @@
 
 use Illuminate\Support\Facades\Route;
 
+// Controller Sisi Publik
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\CheckoutController;
 
+// Controller Sisi Admin
 use App\Http\Controllers\Admin\AuthController; 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController as EventAdminController;
+use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\CategoryController;
 
@@ -17,16 +21,20 @@ use App\Http\Controllers\CategoryController;
 |--------------------------------------------------------------------------
 */
 
+// Halaman Utama Publik
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
+// Grup Informasi Event Publik
 Route::prefix('event')->group(function () {
-    // Sesuai Modul 9.4.6: Letakkan rute statis di atas rute wildcard agar tidak bentrok
-    Route::get('/checkout', [EventController::class, 'checkout'])->name('checkout');
-    
-    // DISESUAIKAN MODUL 9.4.6: Parameter diubah dari /{id} menjadi /{event}
+    // Detail Event (Akses ke halaman event-detail.blade.php)
     Route::get('/{event}', [EventController::class, 'show'])->name('events.show');
 });
 
+// 🔥 PERTEMUAN 10: Rute Proses Guest Checkout Utama (Sesuai Modul 10.4.4)
+Route::get('/checkout/{event}', [CheckoutController::class, 'create'])->name('checkout.create');
+Route::post('/checkout/{event}', [CheckoutController::class, 'store'])->name('checkout.store');
+
+// Menu Tiket Saya (Sisi User)
 Route::get('/my-ticket', [EventController::class, 'ticket'])->name('ticket');
 
 // Shortcut redirect login umum ke halaman login admin
@@ -53,11 +61,16 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Dashboard Route
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         
-        // Event CRUD Routes (Menggunakan Resource Controller bawaan Laravel)
+        // Event CRUD Routes (Menggunakan Resource Controller)
         Route::resource('events', EventAdminController::class);
         
-        // Transaction & Reports Route
-        Route::get('/transactions', [DashboardController::class, 'transactions'])->name('transactions');
+        // 🔥 PERTEMUAN 10: Laporan Transaksi Admin Menggunakan TransactionController (Sesuai Modul 10.4.5)
+        Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
+        
+        // 🔥 FITUR MANAJEMEN TRANSAKSI (Sesuai Alur Halaman Edit Khusus)
+        Route::get('transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
+        Route::put('transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
+        Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 
         // Category CRUD Routes 
         Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');

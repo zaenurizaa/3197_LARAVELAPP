@@ -1,20 +1,24 @@
 <?php
+
 namespace App\Http\Controllers\Admin; 
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\Transaction;
+use App\Models\Event;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        
-        return view('admin.dashboard');
-    }
+        // Hitung ringkasan data secara dinamis dari database
+        $totalPendapatan = Transaction::whereIn('status', ['Success', 'success', 'settlement'])->sum('total_price');
+        $tiketTerjual = Transaction::whereIn('status', ['Success', 'success', 'settlement'])->count();
+        $eventAktif = Event::count();
+        $pesananPending = Transaction::where('status', 'Pending')->count();
 
-    public function transactions()
-    {
+        // Ambil 5 transaksi terbaru untuk tabel ringkasan di bawah kartu dashboard
+        $latestTransactions = Transaction::with('event')->latest()->take(5)->get();
         
-        return view('admin.transactions');
+        return view('admin.dashboard', compact('totalPendapatan', 'tiketTerjual', 'eventAktif', 'pesananPending', 'latestTransactions'));
     }
 }

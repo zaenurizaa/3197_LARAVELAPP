@@ -20,25 +20,28 @@ class EventController extends Controller
         // Mengambil daftar kategori untuk keperluan menu navigasi/footer sesuai instruksi modul
         $categories = Category::all();
 
-        // Mengarahkan langsung ke resources/views/event-detail.blade.php
-        return view('event-detail', compact('categories', 'event'));
-    }
-
-    /**
-     * Mengarahkan Pengguna ke Halaman Pemesanan (Checkout)
-     */
-    public function checkout()
-    {
-        // Mengarahkan ke view transaksi checkout di folder layout (sesuai kode awalmu)
-        return view('layout.checkout');
+        // Mengarahkan ke resources/views/layout/event-detail.blade.php
+        return view('layout.event-detail', compact('categories', 'event'));
     }
 
     /**
      * Menampilkan E-Ticket setelah Pembayaran Sukses Dikonfirmasi
+     * FIX & DINAMIS: Menangkap event_id, nama, serta order_id dari URL dan mengirimkannya ke view ticket
      */
-    public function ticket()
+    public function ticket(Request $request)
     {
-        // Mengarahkan ke halaman e-ticket pengguna di folder layout (sesuai kode awalmu)
-        return view('layout.ticket');
+        $eventId = $request->query('event_id');
+        
+        // Cari event berdasarkan id, jika tidak ketemu ambil data event pertama sebagai fallback
+        $event = Event::find($eventId) ?? Event::first();
+
+        // TANGKAP DATA NAMA DARI URL
+        $namaPembeli = $request->query('nama', 'Pembeli Amikom');
+
+        // 🔥 TANGKAP DATA ORDER ID DARI URL (Jika tidak ada, beri fallback default lama)
+        $orderId = $request->query('order_id', 'TRX-30195');
+
+        // LEMPAR VARIABEL SECARA BERSIH DAN AMAN KE VIEW
+        return view('layout.ticket', compact('event', 'namaPembeli', 'orderId'));
     }
 }
