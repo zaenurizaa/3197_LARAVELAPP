@@ -85,131 +85,59 @@
 
                     <button type="submit"
                         class="w-full py-5 bg-indigo-600 text-white rounded-2xl font-black text-xl shadow-xl shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all">
-                        Bayar Sekarang
+                        Lanjut ke Pembayaran
                     </button>
                 </form>
             </div>
         </div>
     </main>
-
-    {{-- Overlay / Pop-up Midtrans --}}
-    <div id="midtrans-overlay" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
-        <div class="bg-white w-full max-w-sm rounded-4xl overflow-hidden shadow-2xl animate-bounce-in">
-            <div class="bg-slate-50 p-6 flex justify-between items-center border-b">
-                {{-- Memanggil file midtrans.png lokal --}}
-                <img src="{{ asset('storage/posters/midtrans.png') }}" alt="Midtrans Logo" class="h-6 object-contain">
-                <button type="button" onclick="hideMidtrans()" class="p-2 hover:bg-slate-200 rounded-full text-slate-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            
-            <div class="p-8 text-center">
-                <p class="text-sm text-slate-500 font-medium tracking-wide uppercase">Total Pembayaran</p>
-                <h2 class="text-3xl font-black text-indigo-700 my-2">Rp {{ number_format($event->price + 5000, 0, ',', '.') }}</h2>
-                
-                {{-- Box Order ID Dinamis --}}
-                <p class="text-xs text-slate-400 bg-slate-100 py-1.5 px-3 rounded-full inline-block font-mono mt-1">
-                    Order ID: <span id="midtrans-order-id" class="font-bold text-slate-700">Memuat...</span>
-                </p>
-
-                <div class="mt-8 space-y-4">
-                    <p class="text-left text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Pilih Metode Pembayaran:</p>
-                    
-                    {{-- Tombol Transaksi QRIS --}}
-                    <button type="button" id="btn-simulasi-bayar"
-                        class="w-full py-4 border-2 border-indigo-100 rounded-2xl flex justify-between items-center px-6 hover:border-indigo-600 hover:bg-indigo-50/30 transition group shadow-sm text-left">
-                        <div class="flex items-center gap-3">
-                            <span class="text-2xl">📱</span>
-                            <div>
-                                <p class="font-black text-slate-800 group-hover:text-indigo-600 transition">GoPay / QRIS</p>
-                                <p class="text-[11px] text-slate-400 font-medium">Scan QR melalui GoPay, ShopeePay, Dana, atau OVO</p>
-                            </div>
-                        </div>
-                        <span class="text-indigo-400 font-bold group-hover:translate-x-1 transition-transform">→</span>
-                    </button>
-                </div>
-
-                <p class="text-[10px] text-slate-400 mt-6 flex items-center justify-center gap-1">
-                    🔒 Terenkripsi dan diamankan oleh sistem Midtrans Sandbox
-                </p>
-            </div>
-        </div>
-    </div>
+@endsection
 
 @push('scripts')
 <script>
-    let serverOrderId = '';
-    let serverCustomerName = '';
-
     document.getElementById('checkout-form').addEventListener('submit', function(e) {
         e.preventDefault();
         const form = this;
         const formData = new FormData(form);
+        
+        // 🔥 AMBIL ELEMEN TOMBOL DAN BUAT EFEK LOADING RESPONSIVE
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalBtnText = submitBtn.innerText;
+        
+        submitBtn.disabled = true; // Kunci tombol agar tidak terkena double-click request
+        submitBtn.innerText = '⏳ Memproses Pembayaran...'; // Berikan teks loading
+        submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
+        // Kirim data input form via Fetch API ke CheckoutController
         fetch(form.action, {
             method: 'POST',
             body: formData,
             headers: { 'X-Requested-With': 'XMLHttpRequest' }
         })
-        .then(function(response) {
-            if (response.ok) {
-                return response.json();
-            }
+        .then(response => {
+            if (response.ok) return response.json();
             throw new Error('Gagal memproses transaksi.');
         })
-        .then(function(data) {
-            if (data.success) {
-                // Simpan data transaksi riil dari database
-                serverOrderId = data.order_id;
-                serverCustomerName = data.customer_name;
-                showMidtrans();
+        .then(data => {
+            if (data.success && data.redirect_url) {
+                // 🔥 LEMPAR KE HALAMAN PEMBAYARAN SNAP MIDTRANS RESMI (MODUL 11)
+                window.location.href = data.redirect_url;
             } else {
                 alert(data.error || 'Gagal memproses pesanan.');
+                // Kembalikan status tombol seperti semula jika gagal di validasi controller
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalBtnText;
+                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
             }
         })
-        .catch(function(error) {
+        .catch(error => {
             console.error('Error:', error);
-            alert('Terjadi kesalahan sistem atau input validasi.');
+            alert('Terjadi kesalahan sistem atau data tidak valid.');
+            // Kembalikan status tombol seperti semula jika server bermasalah / error internet
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalBtnText;
+            submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
         });
-    });
-
-    function showMidtrans() {
-        const overlay = document.getElementById('midtrans-overlay');
-        if (overlay) {
-            // Set teks Order ID di dalam pop-up sebelum muncul
-            document.getElementById('midtrans-order-id').innerText = serverOrderId;
-            
-            overlay.classList.remove('hidden');
-            overlay.classList.add('flex');
-        }
-    }
-
-    function hideMidtrans() {
-        const overlay = document.getElementById('midtrans-overlay');
-        if (overlay) {
-            overlay.classList.add('hidden');
-            overlay.classList.remove('flex');
-        }
-    }
-
-    document.getElementById('btn-simulasi-bayar').addEventListener('click', function() {
-        const eventId = "{{ $event->id }}";
-        const namaReal = serverCustomerName || document.getElementById('customer_name').value;
-        const orderIdReal = serverOrderId || 'TRX-30195';
-        
-        window.location.href = "{{ route('ticket') }}?event_id=" + eventId + "&nama=" + encodeURIComponent(namaReal) + "&order_id=" + orderIdReal;
     });
 </script>
 @endpush
-
-<style>
-    @keyframes bounce-in {
-        0% { transform: scale(0.9); opacity: 0; }
-        70% { transform: scale(1.05); opacity: 1; }
-        100% { transform: scale(1); }
-    }
-    .animate-bounce-in { animation: bounce-in 0.4s ease-out forwards; }
-</style>
-@endsection
