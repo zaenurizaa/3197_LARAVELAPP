@@ -141,8 +141,8 @@
                             <span class="text-xs text-slate-400">{{ $trx->order_id }}</span>
                         </td>
                         <td class="px-8 py-6">
-                            <p class="font-bold uppercase tracking-wide text-sm text-slate-800 truncate max-w-[150px]">{{ $trx->customer_name }}</p>
-                            <p class="text-xs text-slate-400 truncate max-w-[150px]">{{ $trx->customer_email }}</p>
+                            <p class="font-bold uppercase tracking-wide text-sm text-slate-800 truncate max-w-37.5">{{ $trx->customer_name }}</p>
+                            <p class="text-xs text-slate-400 truncate max-w-37.5">{{ $trx->customer_email }}</p>
                         </td>
                         <td class="px-8 py-6 font-medium text-slate-600 max-w-xs truncate">{{ $trx->event->title ?? '-' }}</td>
                         <td class="px-8 py-6 whitespace-nowrap">
