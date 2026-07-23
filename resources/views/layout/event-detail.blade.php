@@ -14,15 +14,23 @@
                      alt="{{ $event->title }}"
                      class="w-full rounded-[2.5rem] shadow-2xl border-8 border-white object-cover aspect-3/4">
                 
+                {{-- 🔥 PENYELENGGARA: Menggunakan Nama Tenant / Organisasi --}}
                 <div class="mt-8 p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                    <h4 class="font-bold mb-4">Penyelenggara</h4>
+                    <h4 class="font-bold mb-4 text-slate-800">Penyelenggara</h4>
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-indigo-100 rounded-full flex items-center justify-center text-indigo-600 font-bold">
-                            {{ strtoupper(substr($event->user->name ?? 'AE', 0, 2)) }}
+                        <div class="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 font-bold text-lg uppercase shrink-0">
+                            {{ strtoupper(substr($event->tenant->name ?? $event->user->name ?? 'AE', 0, 2)) }}
                         </div>
                         <div>
-                            <p class="font-bold text-slate-800">{{ $event->user->name ?? 'Amikom Event Hub Admin' }}</p>
-                            <p class="text-xs text-slate-500">Verified Organizer</p>
+                            <p class="font-bold text-slate-800 leading-snug">
+                                {{ $event->tenant->name ?? $event->user->name ?? 'Amikom Event Hub Admin' }}
+                            </p>
+                            <p class="text-xs text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
+                                <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                                    <path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"/>
+                                </svg>
+                                Verified Organizer
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -74,7 +82,7 @@
                 </div>
             </div>
 
-            {{-- Card Transaksi Berwarna Indigo Dinamis --}}
+            {{-- Card Transaksi --}}
             <div class="bg-indigo-600 rounded-[2.5rem] p-8 md:p-12 text-white shadow-2xl shadow-indigo-200 relative overflow-hidden">
                 <div class="relative z-10 flex flex-col md:flex-row justify-between items-center gap-8">
                     <div>
@@ -91,7 +99,6 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
                             </svg>
-                            {{-- FIX: Menggunakan $event->stock hasil sinkronisasi database admin --}}
                             @if($event->stock > 0)
                                 Sisa kapasitas slot: <span class="font-bold underline">{{ $event->stock }} Tiket lagi!</span>
                             @else
@@ -101,7 +108,6 @@
                     </div>
                     
                     <div>
-                        {{-- FIX: Logika pengkondisian tombol memesan menggunakan stok aktif --}}
                         @if($event->stock > 0)
                             <a href="{{ route('checkout.create', $event->id) }}"
                                class="inline-block px-10 py-5 bg-white text-indigo-600 rounded-2xl font-black text-xl hover:scale-105 transition-transform shadow-xl">
@@ -143,6 +149,53 @@
                     </li>
                 </ul>
             </div>
+
+            {{-- REKAM JEJAK ULASAN --}}
+            @php
+                $avgRating = $event->reviews->avg('rating') ?? 0;
+                $totalReviews = $event->reviews->count();
+            @endphp
+            <div class="p-8 bg-white rounded-3xl border border-slate-100 shadow-sm space-y-6">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-4">
+                    <div>
+                        <h3 class="text-2xl font-bold text-slate-800">Ulasan Peserta</h3>
+                        <p class="text-sm text-slate-500">Rekam jejak penilaian dari pembeli sebelumnya</p>
+                    </div>
+                    <div class="flex items-center gap-3 bg-amber-50 px-4 py-2 rounded-2xl border border-amber-100">
+                        <span class="text-2xl font-black text-amber-500">⭐ {{ number_format($avgRating, 1) }}</span>
+                        <span class="text-xs font-bold text-amber-700">/ 5.0 ({{ $totalReviews }} Ulasan)</span>
+                    </div>
+                </div>
+
+                <!-- Lista Testimoni -->
+                <div class="space-y-4">
+                    @forelse ($event->reviews as $review)
+                        <div class="p-5 bg-slate-50 rounded-2xl border border-slate-100 space-y-2">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-slate-800 text-sm">
+                                    {{ $review->transaction->customer_name ?? 'Peserta' }}
+                                </span>
+                                <div class="text-amber-400 text-xs tracking-widest">
+                                    @for ($s = 1; $s <= 5; $s++)
+                                        {!! $s <= $review->rating ? '★' : '☆' !!}
+                                    @endfor
+                                </div>
+                            </div>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                "{{ $review->comment ?? 'Tidak ada pesan ulasan tertulis.' }}"
+                            </p>
+                            <div class="text-[10px] text-slate-400 text-right">
+                                {{ $review->created_at->diffForHumans() }}
+                            </div>
+                        </div>
+                    @empty
+                        <div class="text-center py-6 text-slate-400 text-sm italic">
+                            Belum ada ulasan untuk event ini. Jadilah peserta pertama yang memberikan ulasan pasca-acara!
+                        </div>
+                    @endforelse
+                </div>
+            </div>
+
         </div>
     </main>
 @endsection

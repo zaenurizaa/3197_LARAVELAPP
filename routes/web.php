@@ -6,84 +6,122 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\CheckoutController;
+use App\Http\Controllers\MidtransWebhookController; 
+use App\Http\Controllers\Auth\GoogleController;
 
-// Controller Sisi Admin
+// Controller Sisi Admin & Auth
 use App\Http\Controllers\Admin\AuthController; 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController as EventAdminController;
 use App\Http\Controllers\Admin\TransactionController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\Auth\TenantRegisterController;
+use App\Http\Controllers\Admin\TenantApprovalController;
 
 /*
 |--------------------------------------------------------------------------
-| Web Routes - Sisi Publik / Pengguna
+| Web Routes - Sisi Publik
 |--------------------------------------------------------------------------
 */
-
-// Halaman Utama Publik
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-// Grup Informasi Event Publik
 Route::prefix('event')->group(function () {
-    // Detail Event (Akses ke halaman event-detail.blade.php)
     Route::get('/{event}', [EventController::class, 'show'])->name('events.show');
 });
 
-// 🔥 PERTEMUAN 10: Rute Proses Guest Checkout Utama (Sesuai Modul 10.4.4)
 Route::get('/checkout/{event}', [CheckoutController::class, 'create'])->name('checkout.create');
 Route::post('/checkout/{event}', [CheckoutController::class, 'store'])->name('checkout.store');
+Route::get('/payment/{order_id}', [CheckoutController::class, 'payment'])->name('checkout.payment');
+Route::get('/success/{order_id}', [CheckoutController::class, 'success'])->name('checkout.success');
 
-// Menu Tiket Saya (Sisi User)
 Route::get('/my-ticket', [EventController::class, 'ticket'])->name('ticket');
+Route::post('/review/store', [CheckoutController::class, 'storeReview'])->name('review.store');
 
-// Shortcut redirect login umum ke halaman login admin
-Route::get('/login', function () {
-    return redirect()->route('admin.login');
-})->name('login');
+Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
+Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+Route::post('/user/logout', [GoogleController::class, 'logout'])->name('user.logout');
+
+Route::post('/logout', [GoogleController::class, 'logout'])->name('logout');
+
+Route::get('/web-scan/{order_id}', [CheckoutController::class, 'processCheckIn'])->name('scan.process');
+Route::post('/midtrans/callback', [MidtransWebhookController::class, 'handleWebhook']);
+
+/*
+|--------------------------------------------------------------------------
+| Pendaftaran Tenant / Organizer (Publik)
+|--------------------------------------------------------------------------
+*/
+Route::get('/register-organizer', [TenantRegisterController::class, 'showRegistrationForm'])->name('tenant.register');
+Route::post('/register-organizer', [TenantRegisterController::class, 'register'])->name('register.organizer.store');
 
 
 /*
 |--------------------------------------------------------------------------
-| Admin Routes - Dengan Proteksi Middleware Autentikasi
+| 1. ROUTE KHUSUS SUPERADMIN (Guard: admin)
 |--------------------------------------------------------------------------
 */
 Route::prefix('admin')->name('admin.')->group(function () {
     
-    // Autentikasi Admin
-    Route::get('login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('login', [AuthController::class, 'login'])->name('login.post');
-    Route::post('logout', [AuthController::class, 'logout'])->name('logout');
+    // Auth Superadmin
+    Route::get('login', [AuthController::class, 'showAdminLogin'])->name('login');
+    Route::post('login', [AuthController::class, 'adminLogin'])->name('login.post');
+    Route::post('logout', [AuthController::class, 'adminLogout'])->name('logout');
 
-    // Grouping Route Admin (Hanya bisa diakses jika sudah login & punya role admin)
-    Route::middleware(['auth', 'admin'])->group(function () {
-        
-        // Dashboard Route
+    // Terproteksi Guard Admin
+    Route::middleware(['auth:admin', 'admin'])->group(function () {
         Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
         
-        // Event CRUD Routes (Menggunakan Resource Controller)
+        // 🔥 TAMBAHKAN ROUTE EVENT UNTUK SUPERADMIN
         Route::resource('events', EventAdminController::class);
-        
-        // 🔥 PERTEMUAN 10: Laporan Transaksi Admin Menggunakan TransactionController (Sesuai Modul 10.4.5)
+
+        // Transaksi (Semua transaksi untuk Superadmin)
         Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
-        
-        // 🔥 FITUR MANAJEMEN TRANSAKSI (Sesuai Alur Halaman Edit Khusus)
         Route::get('transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
         Route::put('transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
         Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 
-        // Category CRUD Routes 
-        Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
-        Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
-        Route::get('/categories/{id}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
-        Route::put('/categories/{id}', [CategoryController::class, 'update'])->name('categories.update');
-        Route::delete('/categories/{id}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+        // Tenant Approval
+        Route::get('/tenants', [TenantApprovalController::class, 'index'])->name('tenants.index');
+        Route::patch('/tenants/{tenant}/approve', [TenantApprovalController::class, 'approve'])->name('tenants.approve');
+        Route::patch('/tenants/{tenant}/reject', [TenantApprovalController::class, 'reject'])->name('tenants.reject');
+        Route::delete('/tenants/{tenant}', [TenantApprovalController::class, 'destroy'])->name('tenants.destroy');
 
-        // Partner CRUD Routes
-        Route::get('/partners', [PartnerController::class, 'index'])->name('partners.index');
-        Route::post('/partners/store', [PartnerController::class, 'store'])->name('partners.store');
-        Route::get('/partners/{id}/edit', [PartnerController::class, 'edit'])->name('partners.edit'); 
-        Route::put('/partners/{id}', [PartnerController::class, 'update'])->name('partners.update');
-        Route::delete('/partners/{id}', [PartnerController::class, 'destroy'])->name('partners.destroy');
+        // Kategori & Partner Management
+        Route::resource('categories', CategoryController::class);
+        Route::resource('partners', PartnerController::class);
+    });
+});
+
+
+/*
+|--------------------------------------------------------------------------
+| 2. ROUTE KHUSUS EVENT ORGANIZER / TENANT (Guard: organizer)
+|--------------------------------------------------------------------------
+*/
+Route::prefix('organizer')->name('organizer.')->group(function () {
+    
+    // Auth Organizer
+    Route::get('login', [AuthController::class, 'showOrganizerLogin'])->name('login');
+    Route::post('login', [AuthController::class, 'organizerLogin'])->name('login.post');
+    Route::post('logout', [AuthController::class, 'organizerLogout'])->name('logout');
+
+    // Terproteksi Guard Organizer
+    Route::middleware(['auth:organizer', 'ensure.organizer'])->group(function () {
+        Route::get('/', [DashboardController::class, 'index'])->name('dashboard');
+        
+        // Event Management milik Organizer
+        Route::resource('events', EventAdminController::class);
+        
+        // Transaksi milik Organizer
+        Route::get('transactions', [TransactionController::class, 'index'])->name('transactions.index');
+        Route::get('transactions/{transaction}/edit', [TransactionController::class, 'edit'])->name('transactions.edit');
+        Route::put('transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
+        Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
+
+        // Scanner Gatekeeper
+        Route::get('/scanner', function () {
+            return view('admin.scanner');
+        })->name('scanner');
     });
 });

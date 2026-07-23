@@ -21,6 +21,9 @@
         </div>
         @endif
 
+        {{-- Box Notifikasi Menangkap Error AJAX / Failed to Fetch --}}
+        <div id="error-ajax-container" class="hidden mb-6 p-4 bg-red-100 text-red-700 rounded-xl font-bold"></div>
+
         <div class="grid grid-cols-1 gap-8">
             {{-- Box Ringkasan Pesanan --}}
             <div class="bg-white rounded-4xl border border-slate-200 p-8 shadow-sm">
@@ -61,6 +64,9 @@
                 
                 <form id="checkout-form" action="{{ route('checkout.store', $event->id) }}" method="POST" class="space-y-6">
                     @csrf
+                    {{-- Input hidden krusial penyuplai data ke validator request --}}
+                    <input type="hidden" name="event_id" value="{{ $event->id }}">
+
                     <div>
                         <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">Nama Lengkap</label>
                         <input type="text" id="customer_name" name="customer_name" placeholder="Masukkan nama sesuai identitas"
@@ -99,45 +105,67 @@
         e.preventDefault();
         const form = this;
         const formData = new FormData(form);
+        const errorContainer = document.getElementById('error-ajax-container');
         
-        // 🔥 AMBIL ELEMEN TOMBOL DAN BUAT EFEK LOADING RESPONSIVE
+        // Reset tampilan error bawaan
+        errorContainer.classList.add('hidden');
+        errorContainer.innerText = '';
+
         const submitBtn = form.querySelector('button[type="submit"]');
         const originalBtnText = submitBtn.innerText;
         
-        submitBtn.disabled = true; // Kunci tombol agar tidak terkena double-click request
-        submitBtn.innerText = '⏳ Memproses Pembayaran...'; // Berikan teks loading
+        submitBtn.disabled = true; 
+        submitBtn.innerText = '⏳ Memproses Pembayaran...'; 
         submitBtn.classList.add('opacity-75', 'cursor-not-allowed');
 
-        // Kirim data input form via Fetch API ke CheckoutController
+        // Ambil token CSRF dari input form secara manual
+        const csrfToken = form.querySelector('input[name="_token"]').value;
+
         fetch(form.action, {
             method: 'POST',
             body: formData,
-            headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            headers: { 
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+                'X-CSRF-TOKEN': csrfToken, 
+                'ngrok-skip-browser-warning': 'true' 
+            }
         })
-        .then(response => {
-            if (response.ok) return response.json();
-            throw new Error('Gagal memproses transaksi.');
+        .then(async response => {
+            if (response.status === 419) {
+                throw new Error('Sesi aplikasi kedaluwarsa. Silakan refresh (F5) halaman ini.');
+            }
+
+            const data = await response.json();
+            if (!response.ok) {
+                if (data.errors) {
+                    const firstError = Object.values(data.errors)[0][0];
+                    throw new Error(firstError);
+                }
+                throw new Error(data.error || 'Gagal memproses transaksi.');
+            }
+            return data;
         })
         .then(data => {
             if (data.success && data.redirect_url) {
-                // 🔥 LEMPAR KE HALAMAN PEMBAYARAN SNAP MIDTRANS RESMI (MODUL 11)
                 window.location.href = data.redirect_url;
             } else {
                 alert(data.error || 'Gagal memproses pesanan.');
-                // Kembalikan status tombol seperti semula jika gagal di validasi controller
-                submitBtn.disabled = false;
-                submitBtn.innerText = originalBtnText;
-                submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
+                resetButton();
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Terjadi kesalahan sistem atau data tidak valid.');
-            // Kembalikan status tombol seperti semula jika server bermasalah / error internet
+            errorContainer.innerText = error.message;
+            errorContainer.classList.remove('hidden');
+            resetButton();
+        });
+
+        function resetButton() {
             submitBtn.disabled = false;
             submitBtn.innerText = originalBtnText;
             submitBtn.classList.remove('opacity-75', 'cursor-not-allowed');
-        });
+        }
     });
 </script>
 @endpush

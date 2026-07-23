@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Models\Event;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class EventController extends Controller
 {
@@ -15,7 +17,8 @@ class EventController extends Controller
      */
     public function index()
     {
-        $events = Event::with('category')->latest()->paginate(10);
+        // Memanggil relasi category & tenant agar efisien
+        $events = Event::with(['category', 'tenant'])->latest()->paginate(10);
         return view('admin.events.index', compact('events'));
     }
 
@@ -33,18 +36,26 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
-        // Berdasarkan Instruksi Modul 9.4.3 (Validasi Diperketat)
         $data = $request->validate([
-            'category_id' => 'required|exists:categories,id', // Memastikan ID kategori benar-benar ada di DB
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string', // Diubah ke nullable sesuai modul agar fleksibel
-            'date' => 'required|date',
-            'location' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0', // Ditambahkan min:0 untuk mencegah input minus (-5)
-            'stock' => 'required|numeric|min:1', // Ditambahkan min:1 agar stok masuk akal
-            'poster' => 'nullable|image|max:2048' // Memastikan file berupa gambar & max 2MB
+            'category_id' => 'required|exists:categories,id',
+            'title'       => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'date'        => 'required|date',
+            'location'    => 'required|string|max:255',
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|numeric|min:1',
+            'poster'      => 'nullable|image|max:2048'
         ]);
 
+        // 🔥 1. ISI TENANT_ID DAN USER_ID SECARA OTOMATIS
+        $user = Auth::user();
+        $data['user_id']   = $user->id;
+        $data['tenant_id'] = $user->tenant_id; // Mengambil tenant_id milik user yang sedang buat event
+
+        // 🔥 2. BUAT SLUG DARI TITLE
+        $data['slug'] = Str::slug($request->title) . '-' . Str::random(5);
+
+        // Upload poster jika ada
         if ($request->hasFile('poster')) {
             $data['poster_path'] = $request->file('poster')->store('posters', 'public');
         }
@@ -68,20 +79,23 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
-        // Berdasarkan Instruksi Modul 9.4.4
         $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
-            'title' => 'required|string|max:255',
+            'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
-            'date' => 'required|date',
-            'location' => 'required|string|max:255',
-            'price' => 'required|numeric|min:0', // Validasi diperketat saat update
-            'stock' => 'required|numeric|min:1',
-            'poster' => 'nullable|image|max:2048'
+            'date'        => 'required|date',
+            'location'    => 'required|string|max:255',
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|numeric|min:1',
+            'poster'      => 'nullable|image|max:2048'
         ]);
 
+        // Update slug jika judul berubah
+        if ($event->title !== $request->title) {
+            $data['slug'] = Str::slug($request->title) . '-' . Str::random(5);
+        }
+
         if ($request->hasFile('poster')) {
-            // Hapus gambar lama jika sebelumnya sudah memiliki poster (Efisiensi storage server)
             if ($event->poster_path) {
                 Storage::disk('public')->delete($event->poster_path);
             }
@@ -98,7 +112,6 @@ class EventController extends Controller
      */
     public function destroy(Event $event)
     {
-        // Logika hapus file fisik milikmu sudah sangat tepat & aman!
         if ($event->poster_path) {
             Storage::disk('public')->delete($event->poster_path);
         }

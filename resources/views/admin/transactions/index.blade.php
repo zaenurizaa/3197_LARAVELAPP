@@ -4,18 +4,7 @@
 @section('page_title', 'Laporan Transaksi')
 @section('page_subtitle', 'Pantau arus kas dan penjualan tiket Anda.')
 
-<script src="https://unpkg.com/lucide@latest"></script>
-
 @section('content')
-
-@if(session('success'))
-<div class="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-2xl font-bold text-sm flex items-center shadow-sm">
-    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-    </svg>
-    {{ session('success') }}
-</div>
-@endif
 
 <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
@@ -98,6 +87,7 @@
     </div>
 </div>
 
+<script src="https://unpkg.com/lucide@latest"></script>
 <script>
     lucide.createIcons();
 </script>

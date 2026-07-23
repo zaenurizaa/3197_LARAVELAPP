@@ -2,46 +2,112 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Event;     // Mengimpor Model Event
-use App\Models\Category;  // Mengimpor Model Category untuk navigasi/footer (Sesuai Modul 9.4.6)
+use App\Models\Event;
+use App\Models\Organizer;
+use App\Models\Category;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\View\View;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Auth;
 
 class EventController extends Controller
 {
     /**
-     * Menampilkan Detail Event secara Dinamis
-     * DISESUAIKAN 100% dengan Modul 9.4.6 & Nama Berkas: event-detail.blade.php
+     * Menampilkan daftar event milik masing-masing panitia (Multi-Tenant)
      */
-    public function show(Event $event)
+    public function index(): View|RedirectResponse
     {
-        // Me-load relasi category dan user agar tidak lambat saat dipanggil di blade (Eager Loading)
-        $event->load(['category', 'user']);
+        $userId = Auth::id(); // Menggunakan Facade Auth agar bebas dari error Intelephense
 
-        // Mengambil daftar kategori untuk keperluan menu navigasi/footer sesuai instruksi modul
-        $categories = Category::all();
+        $organizer = Organizer::where('user_id', $userId)->first();
 
-        // Mengarahkan ke resources/views/layout/event-detail.blade.php
-        return view('layout.event-detail', compact('categories', 'event'));
+        if (!$organizer) {
+            return redirect()->route('home')->with('error', 'Akun Anda belum terdaftar sebagai kepanitiaan resmi.');
+        }
+
+        $events = Event::where('organizer_id', $organizer->id)->get();
+
+        return view('admin.events.index', compact('events'));
     }
 
     /**
-     * Menampilkan E-Ticket setelah Pembayaran Sukses Dikonfirmasi
-     * FIX & DINAMIS: Menangkap event_id, nama, serta order_id dari URL dan mengirimkannya ke view ticket
+     * Form tambah event baru
      */
-    public function ticket(Request $request)
+    public function create(): View
     {
-        $eventId = $request->query('event_id');
-        
-        // Cari event berdasarkan id, jika tidak ketemu ambil data event pertama sebagai fallback
-        $event = Event::find($eventId) ?? Event::first();
+        return view('admin.events.create');
+    }
 
-        // TANGKAP DATA NAMA DARI URL
-        $namaPembeli = $request->query('nama', 'Pembeli Amikom');
+    /**
+     * Menyimpan data event baru ke dalam database
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:1',
+        ]);
 
-        // 🔥 TANGKAP DATA ORDER ID DARI URL (Jika tidak ada, beri fallback default lama)
-        $orderId = $request->query('order_id', 'TRX-30195');
+        $userId = Auth::id();
 
-        // LEMPAR VARIABEL SECARA BERSIH DAN AMAN KE VIEW
-        return view('layout.ticket', compact('event', 'namaPembeli', 'orderId'));
+        /** @var \App\Models\Organizer $organizer */
+        $organizer = Organizer::where('user_id', $userId)->firstOrFail();
+
+        Event::create([
+            'organizer_id' => $organizer->id,
+            'title'        => $request->title,
+            'price'        => $request->price,
+            'stock'        => $request->stock,
+            'is_free'      => $request->price == 0,
+        ]);
+
+        return redirect()->route('events.index')->with('success', 'Event baru berhasil diterbitkan!');
+    }
+
+    /**
+     * Menampilkan halaman detail informasi event ke publik
+     */
+    public function show(string $id): View
+    {
+        $event = Event::findOrFail($id);
+        $categories = Category::all();
+
+        return view('layout.event-detail', compact('event', 'categories'));
+    }
+
+    /**
+     * Menampilkan Tiket Saya OR Kartu E-Ticket Fisik
+     */
+    public function ticket(Request $request): View|RedirectResponse
+    {
+        $categories = Category::all();
+        $orderId = $request->query('order_id');
+        $transaction = null;
+        $transactions = collect();
+
+        // 1. Jika User Meminta Order ID Tertentu (Cari / Klik Cetak Tiket)
+        if ($orderId) {
+            $transaction = Transaction::with('event')
+                ->where('order_id', $orderId)
+                ->first();
+
+            if (!$transaction) {
+                return redirect()->route('ticket')->with('error', 'Nomor pesanan (Order ID) tidak ditemukan.');
+            }
+        } 
+        // 2. Jika Tidak Ada order_id, Ambil Semua Transaksi User yang Sedang Login
+        elseif (Auth::check()) {
+            /** @var \App\Models\User $user */
+            $user = Auth::user();
+
+            $transactions = Transaction::with('event')
+                ->where('customer_email', $user->email)
+                ->latest()
+                ->get();
+        }
+
+        return view('layout.ticket', compact('transaction', 'transactions', 'categories'));
     }
 }

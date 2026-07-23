@@ -13,11 +13,25 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
+            
+            // 💡 Foreign Key Multi-Tenant (NULL untuk Superadmin & Pembeli Umum, Terisi ID Tenant untuk Organizer)
+            $table->foreignId('tenant_id')->nullable()->constrained('tenants')->nullOnDelete();
+
             $table->string('name');
             $table->string('email')->unique();
-            $table->string('role')->default('user');
+            
+            // 💡 Peran User dalam Sistem ('superadmin', 'organizer', 'user')
+            $table->enum('role', ['superadmin', 'organizer', 'user'])->default('user');
+            
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
+            
+            // 💡 Password dibuat nullable agar User yang login via Google tidak mengalami error
+            $table->string('password')->nullable(); 
+
+            // 💡 Kolom Integrasi Google SSO
+            $table->string('google_id')->nullable();
+            $table->string('avatar')->nullable();
+
             $table->rememberToken();
             $table->timestamps();
         });

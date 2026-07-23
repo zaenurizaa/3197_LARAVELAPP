@@ -14,6 +14,12 @@
         <h2 class="text-2xl font-black mb-2">Selesaikan Pembayaran</h2>
         <p class="text-slate-500 mb-8">Mohon selesaikan pembayaran tiket Anda untuk event <strong>{{ $transaction->event->title }}</strong>.</p>
         
+        @if(session('error'))
+        <div class="mb-6 p-4 bg-amber-50 text-amber-700 border border-amber-200 rounded-xl font-medium text-sm text-left">
+            ⚠️ {{ session('error') }}
+        </div>
+        @endif
+
         <div class="p-6 bg-slate-50 rounded-2xl border border-slate-100 mb-8">
             <p class="text-sm text-slate-400 font-bold uppercase tracking-wider mb-1">Total Tagihan</p>
             <h3 class="text-4xl font-extrabold text-indigo-600">Rp {{ number_format($transaction->total_price, 0, ',', '.') }}</h3>
@@ -33,17 +39,19 @@
         var payButton = document.getElementById('pay-button');
 
         payButton.onclick = function () {
-            // Mengubah teks tombol saat proses pembayaran snap terbuka
-            payButton.innerText = '⏳ Membuka Sandbox...';
+            payButton.innerText = '⏳ Membuka Jendela Pembayaran...';
             payButton.disabled = true;
 
             snap.pay('{{ $transaction->snap_token }}', {
                 onSuccess: function(result){
+                    // Hanya pindah ke halaman sukses jika transaksi benar-benar dibayar
                     window.location.href = "{{ route('checkout.success', $transaction->order_id) }}";
                 },
                 onPending: function(result){
-                    // Diarahkan ke halaman sukses yang sama agar memicu logic force-success local
-                    window.location.href = "{{ route('checkout.success', $transaction->order_id) }}";
+                    // Hanya memicu alert info kode bayar/QRIS siap, tapi halaman tidak berpindah
+                    alert("Kode pembayaran / QRIS telah diterbitkan. Silakan bayar melalui simulator.");
+                    payButton.innerText = 'Bayar Sekarang';
+                    payButton.disabled = false;
                 },
                 onError: function(result){
                     alert("Pembayaran Gagal atau Kadaluwarsa!");
@@ -51,7 +59,7 @@
                     payButton.disabled = false;
                 },
                 onClose: function(){
-                    // Jika pop-up ditutup sengaja, kembalikan status tombol ke semula
+                    // 🔥 TETAP DI SINI: Jika jendela di-close, pulihkan tombol tanpa memindahkan halaman manapun
                     payButton.innerText = 'Bayar Sekarang';
                     payButton.disabled = false;
                 }

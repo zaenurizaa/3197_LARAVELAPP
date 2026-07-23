@@ -6,29 +6,26 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
-{
-Schema::create('events', function (Blueprint $table) {
-$table->id();
+    {
+        Schema::create('events', function (Blueprint $table) {
+            $table->id();
 
-$table->foreignId('category_id')->constrained()->cascadeOnDelete();
-$table->string('title');
-$table->text('description')->nullable();
-$table->dateTime('date');
-$table->string('location');
-$table->integer('price');
-$table->integer('stock');
-$table->string('poster_path')->nullable();
-$table->timestamps();
-});
-}
+            // 💡 Foreign Key ke tabel Tenants (karena Tenants sudah dibuat duluan di langkah 2)
+            $table->foreignId('tenant_id')->constrained('tenants')->cascadeOnDelete();
 
-    /**
-     * Reverse the migrations.
-     */
+            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
+            $table->string('title');
+            $table->text('description')->nullable();
+            $table->dateTime('date');
+            $table->string('location');
+            $table->integer('price');
+            $table->integer('stock');
+            $table->string('poster_path')->nullable();
+            $table->timestamps();
+        });
+    }
+
     public function down(): void
     {
         Schema::dropIfExists('events');

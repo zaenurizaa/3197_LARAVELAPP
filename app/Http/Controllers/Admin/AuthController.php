@@ -8,31 +8,95 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
 {
-    public function showLogin() {
-        return view('auth.login');
+    // ==========================================
+    // 1. AUTH UNTUK SUPERADMIN (GUARD: admin)
+    // ==========================================
+    public function showAdminLogin() {
+        if (Auth::guard('admin')->check()) {
+            return redirect()->route('admin.dashboard');
+        }
+
+        return view('auth.login', [
+            'title'     => 'Admin Login',
+            'subtitle'  => 'Masuk sebagai Superadmin System',
+            'actionUrl' => route('admin.login'), // Jika di routes web kamu pakai admin.login
+        ]);
     }
 
-    public function login(Request $request) {
+    public function adminLogin(Request $request) {
         $credentials = $request->validate([
-            'email' => ['required', 'email'],
+            'email'    => ['required', 'email'],
             'password' => ['required'],
         ]);
 
-        if (Auth::attempt($credentials)) {
+        if (Auth::guard('admin')->attempt($credentials)) {
+            $user = Auth::guard('admin')->user();
+
+            // 🔥 VALIDASI: Jika Tenant/Organizer mencoba login lewat Pintu Admin
+            if (!$user->isSuperAdmin()) {
+                Auth::guard('admin')->logout();
+                $request->session()->invalidate();
+                return back()->with('error', 'Akses ditolak! Anda bukan Superadmin.');
+            }
+
             $request->session()->regenerate();
             return redirect()->route('admin.dashboard');
         }
 
-        return back()->with('error', 'Email atau Password yang Anda berikan tidak terdaftar di database kami.');
+        return back()->with('error', 'Email atau Password Admin tidak valid.');
     }
 
-    public function logout(Request $request) {
-    Auth::logout();
+    public function adminLogout(Request $request) {
+        Auth::guard('admin')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-    $request->session()->invalidate();
+        return redirect()->route('admin.login')->with('success', 'Anda telah berhasil logout.');
+    }
 
-    $request->session()->regenerateToken();
+    // ==========================================
+    // 2. AUTH UNTUK ORGANIZER / TENANT (GUARD: organizer)
+    // ==========================================
+    public function showOrganizerLogin() {
+        if (Auth::guard('organizer')->check()) {
+            return redirect()->route('organizer.dashboard');
+        }
 
-    return redirect()->route('admin.login')->with('success', 'Anda telah berhasil keluar.');
-}
+        return view('auth.login', [
+            'title'     => 'Organizer Login',
+            'subtitle'  => 'Masuk sebagai Pengelola Event / Tenant',
+            'actionUrl' => route('organizer.login'),
+        ]);
+    }
+
+    public function organizerLogin(Request $request) {
+        $credentials = $request->validate([
+            'email'    => ['required', 'email'],
+            'password' => ['required'],
+        ]);
+
+        if (Auth::guard('organizer')->attempt($credentials)) {
+            $user = Auth::guard('organizer')->user();
+
+            // 🔥 VALIDASI: Jika Admin mencoba login lewat Pintu Organizer
+            if (!$user->isOrganizer()) {
+                Auth::guard('organizer')->logout();
+                $request->session()->invalidate();
+                return back()->with('error', 'Akses ditolak! Akun ini khusus Organizer/Tenant.');
+            }
+
+            $request->session()->regenerate();
+            return redirect()->route('organizer.dashboard');
+        }
+
+        return back()->with('error', 'Email atau Password Organizer tidak valid.');
+    }
+
+    public function organizerLogout(Request $request) {
+        Auth::guard('organizer')->logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect()->route('organizer.login')->with('success', 'Anda telah berhasil logout.');
+    }
 }

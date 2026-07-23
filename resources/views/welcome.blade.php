@@ -103,7 +103,7 @@
         
         <div class="flex flex-wrap items-center justify-center gap-8 md:gap-12">
             @forelse($partners as $partner)
-                <div class="group flex flex-col items-center gap-3 p-5 bg-white rounded-2xl border border-slate-100 hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-50/40 transition-all duration-300 min-w-[140px]">
+                <div class="group flex flex-col items-center gap-3 p-5 bg-white rounded-2xl border border-slate-100 hover:border-indigo-100 hover:shadow-xl hover:shadow-indigo-50/40 transition-all duration-300 min-w-35">
                     @if($partner->logo_url && $partner->logo_url != 'https://placehold.co/200x200')
                         <img src="{{ $partner->logo_url }}" alt="{{ $partner->name }}" class="h-12 w-28 object-contain filter grayscale group-hover:grayscale-0 transition-all duration-300">
                     @else

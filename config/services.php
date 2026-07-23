@@ -12,7 +12,15 @@ return [
     | location for this type of information, allowing packages to have
     | a conventional file to locate the various service credentials.
     |
+    | 🔥 POIN 8: KONFIGURASI SOCIALITE GOOGLE LOGIN SSO
+    |
     */
+
+    'google' => [
+        'client_id'     => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect'      => env('GOOGLE_REDIRECT_URL'),
+    ],
 
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),

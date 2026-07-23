@@ -36,13 +36,24 @@ return [
     | Supported: "session"
     |
     */
-
-    'guards' => [
-        'web' => [
-            'driver' => 'session',
-            'provider' => 'users',
-        ],
+'guards' => [
+    'web' => [
+        'driver' => 'session',
+        'provider' => 'users',
     ],
+
+    // Guard khusus Admin / Superadmin
+    'admin' => [
+        'driver' => 'session',
+        'provider' => 'users',
+    ],
+
+    // Guard khusus Organizer / Tenant
+    'organizer' => [
+        'driver' => 'session',
+        'provider' => 'users',
+    ],
+],
 
     /*
     |--------------------------------------------------------------------------

@@ -1,0 +1,15 @@
+{
+    "name": "AmikomEventHub Enterprise",
+    "short_name": "AmikomEvent",
+    "start_url": "/",
+    "background_color": "#6f42c1",
+    "theme_color": "#6f42c1",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "https://cdn-icons-png.flaticon.com/512/1037/1037274.png",
+            "sizes": "512x512",
+            "type": "image/png"
+        }
+    ]
+}
