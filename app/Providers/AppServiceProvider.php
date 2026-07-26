@@ -39,6 +39,7 @@ class AppServiceProvider extends ServiceProvider
         // 3. Writable Path Overrides untuk Vercel Serverless (AWS Lambda Read-Only bypass)
         if (env('APP_ENV') === 'production') {
             config([
+                'logging.default' => 'stderr',
                 'view.compiled' => '/tmp/storage/framework/views',
                 'cache.stores.file.path' => '/tmp/storage/framework/cache',
                 'session.files' => '/tmp/storage/framework/sessions',
