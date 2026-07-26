@@ -77,11 +77,20 @@
         </div>
 
         {{-- Poster Event --}}
-        <div>
-            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">Poster Event (Opsional)</label>
-            <input type="file" name="poster" accept="image/*" 
-                class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition font-medium">
-            @error('poster') <span class="text-red-500 text-sm mt-1 block font-semibold">{{ $message }}</span> @enderror
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">Upload Poster (File)</label>
+                <input type="file" name="poster" accept="image/*" 
+                    class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition font-medium">
+                @error('poster') <span class="text-red-500 text-sm mt-1 block font-semibold">{{ $message }}</span> @enderror
+            </div>
+            
+            <div>
+                <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">Atau URL Poster (Internet)</label>
+                <input type="url" name="poster_url" value="{{ old('poster_url') }}" placeholder="https://example.com/poster.jpg"
+                    class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition font-medium">
+                @error('poster_url') <span class="text-red-500 text-sm mt-1 block font-semibold">{{ $message }}</span> @enderror
+            </div>
         </div>
 
         {{-- Aksi --}}

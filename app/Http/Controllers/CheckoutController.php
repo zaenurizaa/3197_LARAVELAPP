@@ -140,7 +140,7 @@ class CheckoutController extends Controller
                         $msgFree .= "▪️ *Status:* BERHASIL (GRATIS)\n\n";
                         $msgFree .= "Silakan periksa kotak masuk email Anda untuk tiket resminya.\n_Amikom Event Hub Team_";
 
-                        Http::withoutVerifying()->withHeaders(['Authorization' => $fonnteToken])->asForm()->post('https://api.fonnte.com/send', [
+                        Http::withHeaders(['Authorization' => $fonnteToken])->asForm()->post('https://api.fonnte.com/send', [
                             'target'      => $phoneWa,
                             'message'     => $msgFree,
                             'countryCode' => '62'
@@ -182,11 +182,6 @@ class CheckoutController extends Controller
                 \Midtrans\Config::$isProduction = config('midtrans.is_production');
                 \Midtrans\Config::$isSanitized  = true;
                 \Midtrans\Config::$is3ds        = true;
-                \Midtrans\Config::$curlOptions  = [
-                    CURLOPT_SSL_VERIFYPEER => false,
-                    CURLOPT_SSL_VERIFYHOST => 0,
-                    CURLOPT_HTTPHEADER     => [],
-                ];
 
                 $params = [
                     'transaction_details' => [
@@ -240,7 +235,7 @@ class CheckoutController extends Controller
                     $msg .= "Jika Anda sudah berhasil melakukan pembayaran, silakan abaikan pesan ini.\n\n";
                     $msg .= "Salam hangat,\n*Amikom Event Hub Team*";
 
-                    Http::withoutVerifying()->withHeaders([
+                    Http::withHeaders([
                         'Authorization' => $fonnteToken
                     ])->asForm()->post('https://api.fonnte.com/send', [
                         'target'      => $targetPhone,
@@ -296,11 +291,6 @@ class CheckoutController extends Controller
         \Midtrans\Config::$isProduction = config('midtrans.is_production');
         \Midtrans\Config::$isSanitized  = true;
         \Midtrans\Config::$is3ds        = true;
-        \Midtrans\Config::$curlOptions  = [
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_HTTPHEADER     => [],
-        ];
 
         try {
             $midtransStatus = (object) \Midtrans\Transaction::status($transaction->order_id);

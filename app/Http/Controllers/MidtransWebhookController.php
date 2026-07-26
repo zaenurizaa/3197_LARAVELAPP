@@ -19,11 +19,6 @@ class MidtransWebhookController extends Controller
         \Midtrans\Config::$isProduction = config('midtrans.is_production');
         \Midtrans\Config::$isSanitized  = true;
         \Midtrans\Config::$is3ds        = true;
-        \Midtrans\Config::$curlOptions  = [
-            CURLOPT_SSL_VERIFYPEER => false,
-            CURLOPT_SSL_VERIFYHOST => 0,
-            CURLOPT_HTTPHEADER     => [],
-        ];
 
         try {
             $notification       = new \Midtrans\Notification();
@@ -116,7 +111,7 @@ class MidtransWebhookController extends Controller
                 $target = '628' . substr($target, 2);
             }
 
-            Http::withoutVerifying()->withHeaders([
+            Http::withHeaders([
                 'Authorization' => config('services.fonnte.token', env('FONNTE_TOKEN'))
             ])->asForm()->post('https://api.fonnte.com/send', [
                 'target'      => $target,

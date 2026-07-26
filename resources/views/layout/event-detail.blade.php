@@ -8,8 +8,8 @@
         {{-- Kolom Kiri: Poster & Penyelenggara --}}
         <div class="lg:col-span-1">
             <div class="sticky top-32">
-                <img src="{{ ($event->poster_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($event->poster_path))
-                             ? asset('storage/' . $event->poster_path)
+                <img src="{{ $event->poster_path 
+                             ? (str_starts_with($event->poster_path, 'http') ? $event->poster_path : asset('storage/' . $event->poster_path))
                              : asset('storage/asset_admin/concert.png') }}" 
                      alt="{{ $event->title }}"
                      class="w-full rounded-[2.5rem] shadow-2xl border-8 border-white object-cover aspect-3/4">

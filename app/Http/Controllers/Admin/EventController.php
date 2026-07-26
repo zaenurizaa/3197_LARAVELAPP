@@ -55,10 +55,17 @@ class EventController extends Controller
         // 🔥 2. BUAT SLUG DARI TITLE
         $data['slug'] = Str::slug($request->title) . '-' . Str::random(5);
 
-        // Upload poster jika ada
+        // 🔥 3. OPSI CLOUDINARY UPLOAD / URL IMAGE INPUT
+        $imageUrl = null;
         if ($request->hasFile('poster')) {
-            $data['poster_path'] = $request->file('poster')->store('posters', 'public');
+            // Upload ke Cloudinary secara langsung
+            $imageUrl = $this->uploadToCloudinary($request->file('poster'));
+        } elseif ($request->filled('poster_url')) {
+            // Jika user memasukkan URL gambar dari internet langsung
+            $imageUrl = $request->input('poster_url');
         }
+
+        $data['poster_path'] = $imageUrl;
 
         Event::create($data);
 
@@ -87,7 +94,8 @@ class EventController extends Controller
             'location'    => 'required|string|max:255',
             'price'       => 'required|numeric|min:0',
             'stock'       => 'required|numeric|min:1',
-            'poster'      => 'nullable|image|max:2048'
+            'poster'      => 'nullable|image|max:2048',
+            'poster_url'  => 'nullable|url'
         ]);
 
         // Update slug jika judul berubah
@@ -96,10 +104,10 @@ class EventController extends Controller
         }
 
         if ($request->hasFile('poster')) {
-            if ($event->poster_path) {
-                Storage::disk('public')->delete($event->poster_path);
-            }
-            $data['poster_path'] = $request->file('poster')->store('posters', 'public');
+            // Upload yang baru ke Cloudinary
+            $data['poster_path'] = $this->uploadToCloudinary($request->file('poster'));
+        } elseif ($request->filled('poster_url')) {
+            $data['poster_path'] = $request->input('poster_url');
         }
 
         $event->update($data);
@@ -112,12 +120,45 @@ class EventController extends Controller
      */
     public function destroy(Event $event)
     {
-        if ($event->poster_path) {
-            Storage::disk('public')->delete($event->poster_path);
-        }
-
         $event->delete();
 
         return redirect()->route('admin.events.index')->with('success', 'Data event berhasil dihapus secara permanen.');
+    }
+
+    /**
+     * Helper Upload File ke Cloudinary menggunakan HTTP Client Native Laravel (Vercel-Friendly)
+     */
+    private function uploadToCloudinary($file): ?string
+    {
+        try {
+            $cloudName = env('CLOUDINARY_CLOUD_NAME', 'xjcuffm0');
+            $apiKey    = env('CLOUDINARY_API_KEY', '181785848684867');
+            $apiSecret = env('CLOUDINARY_API_SECRET', 'Kb_dciSPVPa4Z7bpAvb0ZWlJ--c');
+
+            // Kita pakai API Unsigned Upload Presets Cloudinary agar praktis
+            // atau API Signature standard jika Anda ingin upload aman
+            $timestamp = time();
+            $signature = sha1("timestamp={$timestamp}{$apiSecret}");
+
+            $response = \Illuminate\Support\Facades\Http::attach(
+                'file', 
+                file_get_contents($file->getRealPath()), 
+                $file->getClientOriginalName()
+            )->post("https://api.cloudinary.com/v1_1/{$cloudName}/image/upload", [
+                'api_key'   => $apiKey,
+                'timestamp' => $timestamp,
+                'signature' => $signature
+            ]);
+
+            if ($response->successful()) {
+                return $response->json('secure_url');
+            }
+
+            \Illuminate\Support\Facades\Log::error('Cloudinary API Error: ' . $response->body());
+            return null;
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Gagal upload poster ke Cloudinary: ' . $e->getMessage());
+            return null;
+        }
     }
 }

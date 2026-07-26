@@ -82,21 +82,33 @@
         <div>
             <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">Poster Event (Ganti Poster)</label>
             
-            @if($event->poster_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($event->poster_path))
+            @if($event->poster_path)
                 <div class="mb-3 flex items-center gap-4 p-4 bg-slate-50 border-2 border-dashed border-slate-100 rounded-2xl max-w-sm">
-                    <img src="{{ asset('storage/' . $event->poster_path) }}" class="w-14 h-20 object-cover rounded-xl shadow-sm border-2 border-white">
+                    <img src="{{ str_starts_with($event->poster_path, 'http') ? $event->poster_path : asset('storage/' . $event->poster_path) }}" class="w-14 h-20 object-cover rounded-xl shadow-sm border-2 border-white">
                     <div>
                         <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Poster Aktif</p>
-                        <a href="{{ asset('storage/' . $event->poster_path) }}" target="_blank" class="text-sm text-indigo-600 hover:underline font-bold flex items-center gap-1 mt-0.5">
+                        <a href="{{ str_starts_with($event->poster_path, 'http') ? $event->poster_path : asset('storage/' . $event->poster_path) }}" target="_blank" class="text-sm text-indigo-600 hover:underline font-bold flex items-center gap-1 mt-0.5">
                             Lihat Resolusi Penuh ↗
                         </a>
                     </div>
                 </div>
             @endif
 
-            <input type="file" name="poster" accept="image/*" 
-                class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition font-medium">
-            @error('poster') <span class="text-red-500 text-sm mt-1 block font-semibold">{{ $message }}</span> @enderror
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">Upload File Baru</label>
+                    <input type="file" name="poster" accept="image/*" 
+                        class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition font-medium">
+                    @error('poster') <span class="text-red-500 text-sm mt-1 block font-semibold">{{ $message }}</span> @enderror
+                </div>
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1 uppercase tracking-wide">Atau Ganti URL Internet</label>
+                    <input type="url" name="poster_url" value="{{ old('poster_url', str_starts_with($event->poster_path, 'http') ? $event->poster_path : '') }}" placeholder="https://example.com/poster.jpg"
+                        class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition font-medium">
+                    @error('poster_url') <span class="text-red-500 text-sm mt-1 block font-semibold">{{ $message }}</span> @enderror
+                </div>
+            </div>
         </div>
 
         {{-- Aksi --}}

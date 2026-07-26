@@ -24,9 +24,8 @@ class GoogleController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            // Nonaktifkan verifikasi SSL untuk koneksi HTTP internal Socialite di Windows/Laragon
-            $guzzleClient = new \GuzzleHttp\Client(['verify' => false]);
-            $googleUser = Socialite::driver('google')->setHttpClient($guzzleClient)->user();
+            // Gunakan verifikasi SSL bawaan server saat Production
+            $googleUser = Socialite::driver('google')->user();
 
             // Cari apakah email/google_id ini sudah terdaftar di database
             $user = User::where('google_id', $googleUser->id)
