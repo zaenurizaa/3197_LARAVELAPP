@@ -31,6 +31,20 @@ class Transaction extends Model
         'reserved_until' => 'datetime',
     ];
 
+    /**
+     * Boot helper untuk generate ID otomatis di TiDB Cloud
+     */
+    protected static function booted()
+    {
+        static::creating(function ($transaction) {
+            // Generate id unik berbasis microtime (epoch + random suffix 3 digit)
+            // Hasilnya integer panjang yang muat di BIGINT (max 19 digit)
+            if (empty($transaction->id)) {
+                $transaction->id = (int) (microtime(true) * 1000) . rand(100, 999);
+            }
+        });
+    }
+
     public function tenant()
     {
         return $this->belongsTo(Tenant::class);
