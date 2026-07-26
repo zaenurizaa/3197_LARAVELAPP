@@ -15,7 +15,7 @@ class TenantRegisterController extends Controller
     // Menampilkan Form Pendaftaran UKM / Organisasi
     public function showRegistrationForm()
     {
-        return view('Auth.register-tenant');
+        return view('auth.register-tenant');
     }
 
     // Memproses Pendaftaran UKM

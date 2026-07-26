@@ -16,7 +16,7 @@ class AuthController extends Controller
             return redirect()->route('admin.dashboard');
         }
 
-        return view('Auth.login', [
+        return view('auth.login', [
             'title'     => 'Admin Login',
             'subtitle'  => 'Masuk sebagai Superadmin System',
             'actionUrl' => route('admin.login'), // Jika di routes web kamu pakai admin.login
@@ -62,7 +62,7 @@ class AuthController extends Controller
             return redirect()->route('organizer.dashboard');
         }
 
-        return view('Auth.login', [
+        return view('auth.login', [
             'title'     => 'Organizer Login',
             'subtitle'  => 'Masuk sebagai Pengelola Event / Tenant',
             'actionUrl' => route('organizer.login'),
