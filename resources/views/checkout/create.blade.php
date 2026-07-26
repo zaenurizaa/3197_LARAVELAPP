@@ -73,10 +73,10 @@
                 
                 {{-- Event Info Card --}}
                 <div class="flex gap-4 items-start">
-                    <img src="{{ ($event->poster_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($event->poster_path))
-                                 ? asset('storage/' . $event->poster_path)
+                    <img src="{{ $event->poster_path 
+                                 ? (str_starts_with($event->poster_path, 'http') ? $event->poster_path : asset('storage/' . $event->poster_path))
                                  : asset('storage/asset_admin/concert.png') }}" 
-                         alt="{{ $event->title }}" class="w-20 h-20 rounded-2xl object-cover shrink-0">
+                          alt="{{ $event->title }}" class="w-20 h-20 rounded-2xl object-cover shrink-0">
                     <div class="flex-1 min-w-0">
                         <h4 class="font-bold text-slate-900 text-base leading-snug truncate">{{ $event->title }}</h4>
                         <p class="text-xs text-slate-500 mt-1">
