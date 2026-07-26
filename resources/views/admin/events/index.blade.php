@@ -32,8 +32,8 @@
                     </td>
                     <td class="px-8 py-6">
                         <div class="w-16 h-20 rounded-xl overflow-hidden shadow-sm border border-slate-100 bg-slate-50">
-                            <img src="{{ ($event->poster_path && \Illuminate\Support\Facades\Storage::disk('public')->exists($event->poster_path))
-                                         ? asset('storage/' . $event->poster_path)
+                            <img src="{{ $event->poster_path 
+                                         ? (str_starts_with($event->poster_path, 'http') ? $event->poster_path : asset('storage/' . $event->poster_path))
                                          : 'https://placehold.co/160x200?text=No+Image' }}"
                                  class="w-full h-full object-cover"
                                  alt="{{ $event->title }}">
