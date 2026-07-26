@@ -23,6 +23,7 @@ class Transaction extends Model
         'snap_token',
         'is_reserved',      // Wajib ada agar tidak kena mass-assignment protection
         'reserved_until',   // Wajib ada agar tidak kena mass-assignment protection
+        'attendance_status',
     ];
 
     protected $casts = [

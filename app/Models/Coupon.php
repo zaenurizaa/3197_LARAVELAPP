@@ -15,8 +15,36 @@ class Coupon extends Model
         'type', // 'percent' atau 'fixed'
         'discount_value',
         'quota',
-        'expires_at'
+        'expires_at',
+        'event_id',
     ];
+
+    protected $casts = [
+        'expires_at' => 'datetime',
+    ];
+
+    public function event()
+    {
+        return $this->belongsTo(Event::class);
+    }
+
+    // Accessor: Map max_uses to quota
+    public function getMaxUsesAttribute()
+    {
+        return $this->quota;
+    }
+
+    // Accessor: Map discount_amount to discount_value
+    public function getDiscountAmountAttribute()
+    {
+        return $this->discount_value;
+    }
+
+    // Accessor: Hitung total pemakaian kupon
+    public function getUsedCountAttribute()
+    {
+        return $this->transactions()->count();
+    }
 
     // Hubungan ke banyak transaksi yang memakai kupon ini
     public function transactions(): HasMany

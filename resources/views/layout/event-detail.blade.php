@@ -91,9 +91,16 @@
                             @if($event->price == 0)
                                 Gratis
                             @else
-                                Rp {{ number_format($event->price, 0, ',', '.') }}<span class="text-lg font-medium text-indigo-200"> /orang</span>
+                                Rp {{ number_format($event->effective_price, 0, ',', '.') }}<span class="text-lg font-medium text-indigo-200"> /orang</span>
                             @endif
                         </h2>
+                        {{-- Active tier badge --}}
+                        @if($event->tiers->count() > 0 && $event->active_tier)
+                        <div class="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 backdrop-blur rounded-full text-xs font-bold">
+                            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+                            {{ $event->effective_tier_name }} — Aktif sekarang
+                        </div>
+                        @endif
                         
                         <p class="mt-4 text-indigo-100 flex items-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -124,6 +131,58 @@
                 <div class="absolute -right-20 -bottom-20 w-64 h-64 bg-white opacity-10 rounded-full"></div>
                 <div class="absolute -left-10 -top-10 w-32 h-32 bg-indigo-400 opacity-20 rounded-full"></div>
             </div>
+
+            {{-- Tiered Pricing Timeline --}}
+            @if($event->tiers->count() > 0)
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-8">
+                <h3 class="text-lg font-bold text-slate-800 mb-2">🎟️ Tahapan Penjualan Tiket</h3>
+                <p class="text-slate-500 text-sm mb-6">Harga tiket naik otomatis seiring bergantinya fase penjualan.</p>
+                <div class="space-y-3">
+                @foreach($event->tiers->sortBy('start_date') as $index => $tier)
+                    @php
+                        $isActive = $tier->isActive();
+                        $isPast   = now()->isAfter($tier->end_date);
+                        $isFuture = now()->isBefore($tier->start_date);
+                    @endphp
+                    <div class="flex items-center gap-4 p-4 rounded-2xl border
+                        {{ $isActive ? 'bg-indigo-50 border-indigo-300' : ($isPast ? 'bg-slate-50 border-slate-200 opacity-60' : 'bg-white border-slate-200') }}">
+                        {{-- Step number --}}
+                        <div class="w-9 h-9 rounded-full flex items-center justify-center font-black text-sm shrink-0
+                            {{ $isActive ? 'bg-indigo-600 text-white' : ($isPast ? 'bg-slate-300 text-slate-600' : 'bg-slate-100 text-slate-500') }}">
+                            {{ $index + 1 }}
+                        </div>
+                        {{-- Info --}}
+                        <div class="flex-1 min-w-0">
+                            <p class="font-bold text-slate-800 flex items-center gap-2">
+                                {{ $tier->name }}
+                                @if($isActive)
+                                <span class="text-xs font-bold px-2 py-0.5 bg-green-100 text-green-700 rounded-full animate-pulse">AKTIF SEKARANG</span>
+                                @elseif($isPast)
+                                <span class="text-xs font-bold px-2 py-0.5 bg-slate-200 text-slate-500 rounded-full">SELESAI</span>
+                                @else
+                                <span class="text-xs font-bold px-2 py-0.5 bg-amber-100 text-amber-700 rounded-full">BELUM DIMULAI</span>
+                                @endif
+                            </p>
+                            <p class="text-xs text-slate-500 mt-0.5">
+                                {{ \Carbon\Carbon::parse($tier->start_date)->format('d M Y') }}
+                                &ndash;
+                                {{ \Carbon\Carbon::parse($tier->end_date)->format('d M Y') }}
+                                @if($tier->stock !== null)
+                                    &bull; Stok: {{ $tier->stock }} tiket
+                                @endif
+                            </p>
+                        </div>
+                        {{-- Price --}}
+                        <div class="text-right shrink-0">
+                            <p class="font-black text-lg {{ $isActive ? 'text-indigo-600' : 'text-slate-600' }}">
+                                Rp {{ number_format($tier->price, 0, ',', '.') }}
+                            </p>
+                        </div>
+                    </div>
+                @endforeach
+                </div>
+            </div>
+            @endif
 
             {{-- Kebijakan Tiket --}}
             <div class="space-y-4">

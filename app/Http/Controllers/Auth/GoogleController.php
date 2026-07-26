@@ -24,14 +24,9 @@ class GoogleController extends Controller
     public function handleGoogleCallback()
     {
         try {
-            $googleUser = Socialite::driver('google')->user();
-            
-            // 🔥 CLEAR SESSION ADMIN JIKA ADA: Bersihkan session lama agar tidak saling ganggu
-            if (Auth::check()) {
-                Auth::logout();
-                session()->invalidate();
-                session()->regenerateToken();
-            }
+            // Nonaktifkan verifikasi SSL untuk koneksi HTTP internal Socialite di Windows/Laragon
+            $guzzleClient = new \GuzzleHttp\Client(['verify' => false]);
+            $googleUser = Socialite::driver('google')->setHttpClient($guzzleClient)->user();
 
             // Cari apakah email/google_id ini sudah terdaftar di database
             $user = User::where('google_id', $googleUser->id)
@@ -45,26 +40,30 @@ class GoogleController extends Controller
                     'email'     => $googleUser->email,
                     'google_id' => $googleUser->id,
                     'avatar'    => $googleUser->avatar,
-                    'password'  => bcrypt(Str::random(16)), // Password acak yang aman
-                    'role'      => 'user', // Pastikan role publik
+                    'password'  => bcrypt(Str::random(16)),
+                    'role'      => 'user', // Role default untuk pembeli publik
                 ]);
             } else {
-                // Jika sudah ada, cukup update Google ID dan fotonya jika berubah
+                // Jika user sudah ada tetapi rolenya admin/organizer,
+                // ubah rolenya jadi 'user' atau tetap izinkan login sebagai user pembeli publik
                 $user->update([
                     'google_id' => $googleUser->id,
-                    'avatar'    => $googleUser->avatar
+                    'avatar'    => $googleUser->avatar,
                 ]);
             }
 
-            // 🔥 PROTEKSI ROLE ADMIN: Tolak jika email ini punya role admin/organizer via SSO Publik
-            if (in_array($user->role, ['admin', 'organizer'])) {
-                return redirect()->route('admin.login')->with('error', 'Akun Pengelola wajib login melalui portal Login Admin resmi.');
+            // Logout dari guard admin/organizer jika ada session menggantung
+            if (Auth::guard('admin')->check()) {
+                Auth::guard('admin')->logout();
+            }
+            if (Auth::guard('organizer')->check()) {
+                Auth::guard('organizer')->logout();
             }
 
-            // Login-kan user ke sistem Laravel
-            Auth::login($user);
+            // 🔥 LOGIN KHUSUS GUARD 'WEB' (Pembeli Publik)
+            Auth::guard('web')->login($user);
             session()->regenerate();
-            
+
             return redirect()->route('home')->with('success', 'Selamat datang, ' . $user->name);
         } catch (\Exception $e) {
             return redirect()->route('home')->with('error', 'Gagal melakukan login menggunakan Google: ' . $e->getMessage());
@@ -72,15 +71,15 @@ class GoogleController extends Controller
     }
 
     /**
-     * 🔥 LOGOUT KHUSUS USER PUBLIK: Dilempar TEGAS ke Beranda Web Utama (Bukan Login Admin)
+     * LOGOUT KHUSUS USER PUBLIK (Guard 'web')
      */
     public function logout()
     {
-        Auth::logout();
+        Auth::guard('web')->logout();
 
         session()->invalidate();
         session()->regenerateToken();
 
         return redirect()->route('home')->with('success', 'Anda telah berhasil keluar.');
     }
-}
+} 

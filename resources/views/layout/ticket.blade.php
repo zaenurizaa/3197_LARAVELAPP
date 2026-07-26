@@ -2,98 +2,185 @@
 
 @section('content')
 
-@if(isset($transaction) && $transaction && $transaction->event)
-    {{-- TAMPILAN CETAK E-TIKET (PADUAN BIRU PREMUM) --}}
-    <div class="print-container py-10 bg-blue-600 min-h-[85vh] text-slate-800 flex flex-col items-center justify-center px-4">
-        <div class="max-w-md w-full my-auto">
-            
-            <!-- Tombol Navigasi -->
-            <div class="mb-5 no-print flex items-center justify-between">
-                <a href="{{ route('ticket') }}" class="inline-flex items-center gap-2 text-xs font-bold bg-white/20 hover:bg-white/30 text-white px-4 py-2.5 rounded-xl transition backdrop-blur-md">
-                    &larr; Kembali
-                </a>
-                <button onclick="window.print()" class="inline-flex items-center gap-2 text-xs font-bold bg-white text-blue-600 hover:bg-blue-50 px-5 py-2.5 rounded-xl transition shadow-lg">
-                    🖨️ Cetak / Simpan PDF
-                </button>
-            </div>
+{{-- Style khusus CSS Print agar HANYA tiket yang tercetak rapi di 1 halaman --}}
+<style>
+    @media print {
+        /* Sembunyikan Navbar, Footer, dan Elemen Luar yang tidak perlu */
+        nav, footer, .no-print, header {
+            display: none !important;
+        }
 
-            <!-- Kartu Tiket -->
-            <div class="ticket-card bg-white rounded-4xl overflow-hidden shadow-2xl border border-white/20">
-                <div class="p-6 bg-blue-50/80 border-b-2 border-dashed border-blue-100 text-center relative">
-                    <span class="inline-block bg-blue-600 text-white text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full mb-2">
-                        E-Ticket Resmi
-                    </span>
-                    <h2 class="text-2xl font-black text-slate-800 leading-tight">{{ $transaction->event->title }}</h2>
+        /* Atur container utama cetak */
+        body, main {
+            background: white !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            min-height: auto !important;
+        }
+
+        /* Hilangkan margin & header/footer bawaan browser (URL, tanggal) */
+        @page {
+            size: A4 portrait;
+            margin: 1cm;
+        }
+
+        /* Posisikan Kartu Tiket tepat di tengah halaman PDF */
+        .print-ticket-area {
+            box-shadow: none !important;
+            border: 1px solid #e2e8f0 !important;
+            margin: 0 auto !important;
+            max-width: 420px !important;
+            page-break-inside: avoid;
+        }
+    }
+</style>
+
+@if(isset($transaction) && $transaction && $transaction->event)
+    {{-- TAMPILAN E-TIKET --}}
+    <main class="min-h-[85vh] bg-slate-50 flex items-center justify-center px-6 py-12 relative">
+        <div class="max-w-md w-full animate-in fade-in zoom-in duration-500">
+            
+            <!-- Header Sukses & Centang (Hanya tampil di layar, tidak ikut ke-print) -->
+            <div class="text-center mb-8 no-print">
+                <div class="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 border-4 border-white shadow-sm">
+                    <svg class="w-10 h-10 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path>
+                    </svg>
                 </div>
 
-                <div class="p-6 space-y-6">
-                    <div class="grid grid-cols-2 gap-4 text-left">
+                <h1 class="text-3xl font-black text-slate-800">
+                    Pembayaran Berhasil!
+                </h1>
+
+                <p class="text-slate-500 mt-2 text-sm">
+                    Tiket Anda telah terbit dan siap digunakan.
+                </p>
+            </div>
+
+            <!-- Kartu Tiket Utama (INI SATU-SATUNYA YANG TERCETAK DI PDF) -->
+            <div class="print-ticket-area bg-white text-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl relative border border-slate-100">
+                
+                <!-- Header Tiket -->
+                <div class="p-8 bg-indigo-50 border-b-4 border-dashed border-white text-center relative">
+                    <p class="text-indigo-600 font-bold uppercase tracking-widest text-xs mb-2">
+                        E-Ticket Resmi
+                    </p>
+
+                    <h2 class="text-2xl font-black leading-tight text-slate-800">
+                        {{ $transaction->event->title ?? 'Event Tidak Ditemukan' }}
+                    </h2>
+
+                    <!-- Cutout Notch Kiri & Kanan -->
+                    <div class="absolute -left-4 -bottom-4 w-8 h-8 bg-slate-50 rounded-full shadow-inner border-r border-slate-100"></div>
+                    <div class="absolute -right-4 -bottom-4 w-8 h-8 bg-slate-50 rounded-full shadow-inner border-l border-slate-100"></div>
+                </div>
+
+                <!-- Detail Tiket Grid -->
+                <div class="p-8 space-y-6">
+                    <div class="grid grid-cols-2 gap-5 text-left">
                         <div>
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Nama Pembeli</p>
-                            <p class="font-bold text-xs text-slate-800">{{ $transaction->customer_name ?? Auth::user()?->name }}</p>
-                        </div>
-                        <div>
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Tanggal & Waktu</p>
-                            <p class="font-bold text-xs text-slate-800">
-                                {{ \Carbon\Carbon::parse($transaction->event->date)->format('d M Y, H:i') }}
+                            <p class="text-slate-400 text-[10px] font-bold uppercase mb-1">Nama Pembeli</p>
+                            <p class="font-bold text-slate-800 text-xs truncate">
+                                {{ $transaction->customer_name ?? Auth::user()?->name }}
                             </p>
                         </div>
+
                         <div>
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Order ID</p>
-                            <p class="font-mono font-bold text-blue-600 text-xs">{{ $transaction->order_id }}</p>
+                            <p class="text-slate-400 text-[10px] font-bold uppercase mb-1">Tanggal & Waktu</p>
+                            <p class="font-bold text-slate-800 text-xs">
+                                {{ \Carbon\Carbon::parse($transaction->event->date ?? now())->format('d M Y, H:i') }}
+                            </p>
                         </div>
+
                         <div>
-                            <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-0.5">Lokasi</p>
-                            <p class="font-bold text-xs text-slate-800 leading-snug">{{ $transaction->event->location }}</p>
+                            <p class="text-slate-400 text-[10px] font-bold uppercase mb-1">Order ID</p>
+                            <p class="font-bold text-slate-800 font-mono text-xs">
+                                {{ $transaction->order_id }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-slate-400 text-[10px] font-bold uppercase mb-1">Lokasi</p>
+                            <p class="font-bold text-slate-800 text-xs">
+                                {{ $transaction->event->location ?? '-' }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-slate-400 text-[10px] font-bold uppercase mb-1">Total Bayar</p>
+                            <p class="font-bold text-slate-800 text-xs">
+                                Rp {{ number_format($transaction->total_price ?? 0, 0, ',', '.') }}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p class="text-slate-400 text-[10px] font-bold uppercase mb-1">Status</p>
+                            <p class="font-bold text-green-600 text-xs uppercase">
+                                {{ $transaction->status ?? 'SUCCESS' }}
+                            </p>
                         </div>
                     </div>
 
-                    <div class="bg-slate-50 p-5 rounded-2xl flex flex-col items-center border border-slate-100 text-center">
-                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-wider mb-3">Scan QR Untuk Check-in</p>
-                        <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-200 inline-block">
+                    <!-- Box QR Code -->
+                    <div class="bg-slate-50 p-5 rounded-3xl flex flex-col items-center border border-slate-100">
+                        <p class="text-slate-400 text-[10px] font-bold uppercase mb-3 tracking-widest">
+                            Scan QR untuk Check-in
+                        </p>
+
+                        <div class="bg-white p-2.5 rounded-2xl shadow-sm border border-slate-200 inline-block">
                             <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data={{ urlencode($transaction->order_id) }}" alt="QR Code" class="w-32 h-32">
                         </div>
-                        <p class="mt-3 font-mono font-black text-slate-800 uppercase tracking-widest text-xs">
-                            STATUS: <span class="text-emerald-600">{{ $transaction->status ?? 'SUCCESS' }}</span>
+
+                        <p class="mt-3 font-mono font-bold text-slate-600 text-xs">
+                            #{{ $transaction->order_id }}
                         </p>
                     </div>
                 </div>
 
-                <div class="p-4 bg-slate-50 border-t border-slate-100 text-center text-[10px] text-slate-400 font-medium">
-                    Mohon tunjukkan E-Ticket ini saat memasuki area acara.
+                <!-- Action Button (Sembunyi saat di-print) -->
+                <div class="px-8 pb-8 space-y-3 no-print">
+                    <button onclick="window.print()"
+                            class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-200 hover:bg-indigo-700 hover:-translate-y-0.5 transition-all text-sm">
+                        🖨️ Cetak / Simpan PDF
+                    </button>
+
+                    <a href="{{ route('ticket') }}"
+                       class="block text-center py-2 text-slate-400 font-semibold text-sm hover:text-indigo-600 transition">
+                        &larr; Kembali ke Daftar Tiket
+                    </a>
                 </div>
             </div>
 
         </div>
-    </div>
+    </main>
 
 @else
-    {{-- TAMPILAN LIST TIKET (TEMA BIRU) --}}
+    {{-- TAMPILAN DASHBOARD / LIST TIKET --}}
     <div class="py-10 bg-slate-50 min-h-screen">
         <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             
             <div class="mb-8 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-extrabold text-slate-900 tracking-tight">Tiket & Transaksi Saya</h1>
+                    <h1 class="text-2xl font-black text-slate-900 tracking-tight">Tiket & Transaksi Saya</h1>
                     <p class="text-slate-500 text-xs mt-1">Kelola tiket event aktif milikmu dan pantau status pembayarannya.</p>
                 </div>
 
                 <form action="{{ route('ticket') }}" method="GET" class="flex gap-2 w-full md:w-auto">
                     <input type="text" name="order_id" placeholder="Cari Order ID..." 
                            value="{{ request('order_id') }}"
-                           class="w-full md:w-64 px-4 py-2 rounded-xl border border-slate-200 text-slate-800 font-medium text-xs focus:outline-none focus:border-blue-600 bg-white shadow-sm" required>
-                    <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-xl font-bold text-xs transition shadow-sm shrink-0">
+                           class="w-full md:w-64 px-4 py-2.5 rounded-xl border border-slate-200 text-slate-800 font-medium text-xs focus:outline-none focus:border-indigo-600 bg-white shadow-sm" required>
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold text-xs transition shadow-sm shrink-0">
                         Cari
                     </button>
                 </form>
             </div>
 
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+            <div class="bg-white rounded-3xl border border-slate-100 shadow-sm p-6">
                 
-                <!-- Tab Menu Biru -->
-                <div class="flex border-b border-slate-200 mb-6 gap-6">
+                <!-- Tab Menu -->
+                <div class="flex border-b border-slate-100 mb-6 gap-6">
                     <button onclick="switchTab('aktif')" id="tab-btn-aktif"
-                        class="tab-btn pb-3 text-xs font-bold border-b-2 border-blue-600 text-blue-600 transition">
+                        class="tab-btn pb-3 text-xs font-bold border-b-2 border-indigo-600 text-indigo-600 transition">
                         🎟️ Event Aktif
                     </button>
                     <button onclick="switchTab('lalu')" id="tab-btn-lalu"
@@ -113,9 +200,9 @@
                     @endphp
 
                     @forelse($successTransactions as $item)
-                        <div class="p-4 border border-slate-200/80 rounded-xl hover:border-blue-300 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white shadow-sm">
+                        <div class="p-4 border border-slate-100 rounded-2xl hover:border-indigo-200 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white shadow-sm">
                             <div>
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-blue-600 bg-blue-50 px-2.5 py-1 rounded-md">
+                                <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">
                                     #{{ $item->order_id }}
                                 </span>
                                 <h3 class="text-sm font-bold text-slate-800 mt-2">{{ $item->event->title ?? 'Event Tidak Ditemukan' }}</h3>
@@ -125,14 +212,14 @@
                             </div>
                             <div>
                                 <a href="{{ route('ticket', ['order_id' => $item->order_id]) }}"
-                                    class="inline-block px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs rounded-xl transition shadow-sm">
+                                    class="inline-block px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-md shadow-indigo-100">
                                     Cetak E-Ticket
                                 </a>
                             </div>
                         </div>
                     @empty
                         <div class="py-12 text-center">
-                            <p class="text-slate-600 text-xs font-bold">Belum ada tiket aktif saat ini.</p>
+                            <p class="text-slate-500 text-xs font-bold">Belum ada tiket aktif saat ini.</p>
                         </div>
                     @endforelse
                 </div>
@@ -145,7 +232,7 @@
                 <!-- Content Transaksi -->
                 <div id="tab-content-transaksi" class="tab-content hidden space-y-3">
                     @forelse($transactions as $trx)
-                        <div class="p-4 border border-slate-100 bg-slate-50/50 rounded-xl flex items-center justify-between">
+                        <div class="p-4 border border-slate-100 bg-slate-50/50 rounded-2xl flex items-center justify-between">
                             <div>
                                 <p class="text-[10px] font-bold text-slate-400">#{{ $trx->order_id }}</p>
                                 <h4 class="font-bold text-slate-800 text-xs mt-0.5">{{ $trx->event->title ?? 'Tiket Event' }}</h4>
@@ -169,7 +256,7 @@
         function switchTab(tabName) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('border-blue-600', 'text-blue-600');
+                btn.classList.remove('border-indigo-600', 'text-indigo-600');
                 btn.classList.add('border-transparent', 'text-slate-400');
             });
 
@@ -177,7 +264,7 @@
             const targetBtn = document.getElementById('tab-btn-' + tabName);
             if(targetBtn) {
                 targetBtn.classList.remove('border-transparent', 'text-slate-400');
-                targetBtn.classList.add('border-blue-600', 'text-blue-600');
+                targetBtn.classList.add('border-indigo-600', 'text-indigo-600');
             }
         }
     </script>

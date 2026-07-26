@@ -6,14 +6,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'AmikomEventHub - Temukan Event Seru!')</title>
     
+    <!-- PWA Meta Tags -->
     <link rel="manifest" href="/manifest.json">
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js')
-                .then(() => console.log("🚀 PWA AmikomEventHub Aktif!"))
-                .catch((err) => console.error("Gagal memuat PWA Service Worker:", err));
-        }
-    </script>
+    <meta name="theme-color" content="#6366f1">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="EventHub">
+    <link rel="apple-touch-icon" href="/icons/icon-192.png">
+    <script src="/sw-register.js" defer></script>
 
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Font POPPINS -->
@@ -65,11 +66,13 @@
             
             <div class="h-5 w-px bg-slate-300 mx-2"></div>
 
-            {{-- 🔥 Hanya tampilkan Profil User jika login di Guard WEB (Pembeli Publik) --}}
-            @if(Auth::guard('web')->check() && $authUser->role === 'user')
+            {{-- 🔥 Tampilkan Profil User jika login di Guard WEB --}}
+            @if(Auth::guard('web')->check())
                 <div class="flex items-center gap-3">
-                    <img src="{{ $authUser->avatar ?? 'https://ui-avatars.com/api/?background=4f46e5&color=fff&name='.urlencode($authUser->name) }}" 
-                         alt="Avatar" class="w-8 h-8 rounded-full border border-indigo-200 object-cover">
+                    <img src="{{ $authUser->avatar ?: 'https://ui-avatars.com/api/?background=4f46e5&color=fff&name='.urlencode($authUser->name) }}" 
+     alt="Avatar" 
+     referrerpolicy="no-referrer"
+     class="w-8 h-8 rounded-full border border-indigo-200 object-cover">
                     <span class="text-sm font-semibold text-slate-700 max-w-30 truncate">{{ $authUser->name }}</span>
                     
                     <!-- Form Logout User Publik -->
@@ -82,12 +85,12 @@
                     </form>
                 </div>
             @else
-                {{-- Jika Guest (Atau sedang login sebagai Admin/Organizer di tab lain), tampilkan Login Google --}}
+                {{-- Jika Guest, Tampilkan Tombol Login Google --}}
                 <a href="{{ route('google.login') }}" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-md shadow-indigo-200 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-google" viewBox="0 0 16 16">
                       <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0c2.158 0 3.92.8 5.242 2.096l-1.872 1.802C10.48 2.969 9.341 2.5 8 2.5c-2.425 0-4.466 1.69-5.2 3.968a5.15 5.15 0 0 0 0 2.532c.734 2.278 2.774 3.968 5.2 3.968 1.559 0 2.68-.414 3.497-1.127a3.3 3.3 0 0 0 1.097-2.16H8v-2.6h7.545z"/>
                     </svg>
-                    Login
+                    Continue with Google
                 </a>
             @endif
         </div>

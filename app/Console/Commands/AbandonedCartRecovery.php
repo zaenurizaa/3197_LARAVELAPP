@@ -39,7 +39,7 @@ class AbandonedCartRecovery extends Command
                 $msg = "Halo *{$cart->customer_name}*,\n\nKami melihat Anda belum menyelesaikan transaksi tiket *{$cart->event->title}*. Tiket Anda terkunci aman secara eksklusif.\n\nSelesaikan pembayaran instan di sini sebelum pesanan dibatalkan otomatis: {$payUrl}";
                 
                 try {
-                    $response = Http::withHeaders([
+                    $response = Http::withoutVerifying()->withHeaders([
                         'Authorization' => config('services.fonnte.token', env('FONNTE_TOKEN'))
                     ])->asForm()->post('https://api.fonnte.com/send', [
                         'target'      => $wa, 

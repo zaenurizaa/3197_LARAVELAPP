@@ -8,12 +8,15 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\MidtransWebhookController; 
 use App\Http\Controllers\Auth\GoogleController;
+use App\Http\Controllers\CheckInController;
+use App\Http\Controllers\CertificateController;
 
 // Controller Sisi Admin & Auth
 use App\Http\Controllers\Admin\AuthController; 
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EventController as EventAdminController;
 use App\Http\Controllers\Admin\TransactionController;
+use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 use App\Http\Controllers\PartnerController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\Auth\TenantRegisterController;
@@ -30,6 +33,7 @@ Route::prefix('event')->group(function () {
     Route::get('/{event}', [EventController::class, 'show'])->name('events.show');
 });
 
+Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.apply-coupon');
 Route::get('/checkout/{event}', [CheckoutController::class, 'create'])->name('checkout.create');
 Route::post('/checkout/{event}', [CheckoutController::class, 'store'])->name('checkout.store');
 Route::get('/payment/{order_id}', [CheckoutController::class, 'payment'])->name('checkout.payment');
@@ -46,6 +50,13 @@ Route::post('/logout', [GoogleController::class, 'logout'])->name('logout');
 
 Route::get('/web-scan/{order_id}', [CheckoutController::class, 'processCheckIn'])->name('scan.process');
 Route::post('/midtrans/callback', [MidtransWebhookController::class, 'handleWebhook']);
+
+// Check-in Scanner (Publik – untuk panitia di hari-H)
+Route::get('/checkin', [CheckInController::class, 'scan'])->name('checkin.scan');
+Route::post('/checkin/verify', [CheckInController::class, 'verify'])->name('checkin.verify');
+
+// E-Certificate Download
+Route::get('/certificate/{certificate}', [CertificateController::class, 'download'])->name('certificate.download');
 
 /*
 |--------------------------------------------------------------------------
@@ -90,6 +101,10 @@ Route::prefix('admin')->name('admin.')->group(function () {
         // Kategori & Partner Management
         Route::resource('categories', CategoryController::class);
         Route::resource('partners', PartnerController::class);
+        Route::resource('coupons', AdminCouponController::class)->only(['index', 'store', 'destroy']);
+
+        // Check-in Scanner Superadmin
+        Route::get('/checkin', [CheckInController::class, 'scan'])->name('checkin.scan');
     });
 });
 
@@ -119,9 +134,7 @@ Route::prefix('organizer')->name('organizer.')->group(function () {
         Route::put('transactions/{transaction}', [TransactionController::class, 'update'])->name('transactions.update');
         Route::delete('transactions/{transaction}', [TransactionController::class, 'destroy'])->name('transactions.destroy');
 
-        // Scanner Gatekeeper
-        Route::get('/scanner', function () {
-            return view('admin.scanner');
-        })->name('scanner');
+        // Scanner Gatekeeper (Check-in Scanner Organizer)
+        Route::get('/checkin', [CheckInController::class, 'scan'])->name('checkin.scan');
     });
 });

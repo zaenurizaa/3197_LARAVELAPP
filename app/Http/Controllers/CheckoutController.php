@@ -57,35 +57,51 @@ class CheckoutController extends Controller
                     throw new \Exception('Maaf, stok tiket baru saja habis dibeli oleh pengguna lain.');
                 }
 
-                // Kalkulasi Kupon
-                $basePrice = $event->price;
+                // Kalkulasi Kupon & Dynamic Pricing Tier
+                $basePrice = $event->effective_price;
                 $discount  = 0;
                 $couponId  = null;
 
                 if ($request->filled('coupon_code')) {
-                    $coupon = Coupon::where('code', $request->coupon_code)->where('quota', '>', 0)->first();
-                    if ($coupon) {
-                        if ($coupon->type === 'percent') {
-                            $discount = ($coupon->discount_value / 100) * $basePrice;
-                        } else {
-                            $discount = $coupon->discount_value;
-                        }
-                        $couponId = $coupon->id;
-                        $coupon->decrement('quota');
+                    $couponCode = strtoupper(trim($request->coupon_code));
+                    $coupon = Coupon::where('code', $couponCode)->first();
+
+                    if (!$coupon) {
+                        throw new \Exception('Kode kupon "' . $couponCode . '" tidak ditemukan.');
                     }
+
+                    if ($coupon->quota <= 0) {
+                        throw new \Exception('Maaf, kuota penggunaan kupon "' . $couponCode . '" telah habis.');
+                    }
+
+                    if ($coupon->expires_at && now()->gt($coupon->expires_at)) {
+                        throw new \Exception('Maaf, kupon "' . $couponCode . '" telah kedaluwarsa.');
+                    }
+
+                    if ($coupon->type === 'percent') {
+                        $discount = ($coupon->discount_value / 100) * $basePrice;
+                    } else {
+                        $discount = min($basePrice, $coupon->discount_value);
+                    }
+
+                    $couponId = $coupon->id;
+                    $coupon->decrement('quota');
                 }
 
                 $finalPrice = max(0, $basePrice - $discount);
-                $serviceFee = 5000;
-                $grandTotal = $finalPrice + $serviceFee;
+                
+                // Cek apakah acara gratis (harga tiket Rp 0 / flag is_free / diskon total)
+                $isFreeEvent = ($basePrice == 0 || (isset($event->is_free) && $event->is_free) || $finalPrice == 0);
+                $serviceFee  = $isFreeEvent ? 0 : 5000;
+                $grandTotal  = $isFreeEvent ? 0 : ($finalPrice + $serviceFee);
 
                 // =========================================================================
-                // EVENT GRATIS / RP 0
+                // EVENT GRATIS / RP 0 (BYPASS ALUR MIDTRANS)
                 // =========================================================================
-                if ($grandTotal == 0 || (isset($event->is_free) && $event->is_free)) {
+                if ($isFreeEvent || $grandTotal == 0) {
                     $orderId = 'FREE-' . time() . '-' . rand(100, 999);
 
-                    // Potong stok tiket langsung
+                    // Potong stok tiket langsung saat itu juga
                     $event->decrement('stock');
 
                     $transaction = Transaction::create([
@@ -103,14 +119,14 @@ class CheckoutController extends Controller
                         'reserved_until'    => null,
                     ]);
 
-                    // Kirim Mail E-Ticket
+                    // Kirim Mail E-Ticket secara langsung
                     try {
                         Mail::to($transaction->customer_email)->send(new EventTicketMail($transaction));
                     } catch (\Exception $e) {
                         Log::error('Gagal mengirim email E-Ticket Event Gratis: ' . $e->getMessage());
                     }
 
-                    // Kirim WA via Fonnte
+                    // Kirim Notifikasi WA via Fonnte
                     try {
                         $phoneWa = str_replace([' ', '-', '+'], '', $transaction->customer_phone);
                         if (substr($phoneWa, 0, 2) === '08') {
@@ -124,7 +140,7 @@ class CheckoutController extends Controller
                         $msgFree .= "▪️ *Status:* BERHASIL (GRATIS)\n\n";
                         $msgFree .= "Silakan periksa kotak masuk email Anda untuk tiket resminya.\n_Amikom Event Hub Team_";
 
-                        Http::withHeaders(['Authorization' => $fonnteToken])->asForm()->post('https://api.fonnte.com/send', [
+                        Http::withoutVerifying()->withHeaders(['Authorization' => $fonnteToken])->asForm()->post('https://api.fonnte.com/send', [
                             'target'      => $phoneWa,
                             'message'     => $msgFree,
                             'countryCode' => '62'
@@ -133,6 +149,7 @@ class CheckoutController extends Controller
                         Log::error('Gagal kirim WA Tiket Gratis: ' . $e->getMessage());
                     }
 
+                    // Pembeli langsung diarahkan ke rute sukses (Bypass Midtrans)
                     return [
                         'redirect_url' => route('checkout.success', $transaction->order_id)
                     ];
@@ -165,6 +182,11 @@ class CheckoutController extends Controller
                 \Midtrans\Config::$isProduction = config('midtrans.is_production');
                 \Midtrans\Config::$isSanitized  = true;
                 \Midtrans\Config::$is3ds        = true;
+                \Midtrans\Config::$curlOptions  = [
+                    CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_SSL_VERIFYHOST => 0,
+                    CURLOPT_HTTPHEADER     => [],
+                ];
 
                 $params = [
                     'transaction_details' => [
@@ -218,7 +240,7 @@ class CheckoutController extends Controller
                     $msg .= "Jika Anda sudah berhasil melakukan pembayaran, silakan abaikan pesan ini.\n\n";
                     $msg .= "Salam hangat,\n*Amikom Event Hub Team*";
 
-                    Http::withHeaders([
+                    Http::withoutVerifying()->withHeaders([
                         'Authorization' => $fonnteToken
                     ])->asForm()->post('https://api.fonnte.com/send', [
                         'target'      => $targetPhone,
@@ -274,6 +296,11 @@ class CheckoutController extends Controller
         \Midtrans\Config::$isProduction = config('midtrans.is_production');
         \Midtrans\Config::$isSanitized  = true;
         \Midtrans\Config::$is3ds        = true;
+        \Midtrans\Config::$curlOptions  = [
+            CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_HTTPHEADER     => [],
+        ];
 
         try {
             $midtransStatus = (object) \Midtrans\Transaction::status($transaction->order_id);
@@ -378,5 +405,74 @@ class CheckoutController extends Controller
         ]);
 
         return redirect()->back()->with('success', 'Terima kasih banyak! Ulasan bintang Anda berhasil disimpan.');
+    }
+
+    /**
+     * AJAX Endpoint: Validasi & Terapkan Kode Kupon / Voucher
+     */
+    public function applyCoupon(Request $request): JsonResponse
+    {
+        $request->validate([
+            'event_id'    => 'required|exists:events,id',
+            'coupon_code' => 'required|string',
+        ]);
+
+        $event = Event::findOrFail($request->event_id);
+        $basePrice = $event->effective_price;
+        $couponCode = strtoupper(trim($request->coupon_code));
+
+        $coupon = Coupon::where('code', $couponCode)->first();
+
+        if (!$coupon) {
+            return response()->json([
+                'valid'   => false,
+                'message' => 'Kode kupon "' . $couponCode . '" tidak ditemukan.'
+            ], 404);
+        }
+
+        if ($coupon->quota <= 0) {
+            return response()->json([
+                'valid'   => false,
+                'message' => 'Kuota voucher "' . $couponCode . '" sudah habis.'
+            ], 422);
+        }
+
+        if ($coupon->expires_at && now()->gt($coupon->expires_at)) {
+            return response()->json([
+                'valid'   => false,
+                'message' => 'Voucher "' . $couponCode . '" telah kedaluwarsa.'
+            ], 422);
+        }
+
+        if ($coupon->type === 'percent') {
+            $discount = ($coupon->discount_value / 100) * $basePrice;
+            $discountLabel = (int)$coupon->discount_value . '%';
+        } else {
+            $discount = min($basePrice, $coupon->discount_value);
+            $discountLabel = 'Rp ' . number_format($coupon->discount_value, 0, ',', '.');
+        }
+
+        $finalPrice = max(0, $basePrice - $discount);
+        $isFree = ($basePrice == 0 || (isset($event->is_free) && $event->is_free) || $finalPrice == 0);
+        $serviceFee = $isFree ? 0 : 5000;
+        $grandTotal = $isFree ? 0 : ($finalPrice + $serviceFee);
+
+        return response()->json([
+            'success'               => true,
+            'valid'                 => true,
+            'message'               => 'Kupon ' . $couponCode . ' (' . $discountLabel . ') berhasil dipasang!',
+            'coupon_code'           => $couponCode,
+            'discount_value'        => $discount,
+            'discount_formatted'    => 'Rp ' . number_format($discount, 0, ',', '.'),
+            'base_price'            => $basePrice,
+            'base_price_formatted'  => 'Rp ' . number_format($basePrice, 0, ',', '.'),
+            'final_price'           => $finalPrice,
+            'final_price_formatted' => 'Rp ' . number_format($finalPrice, 0, ',', '.'),
+            'service_fee'           => $serviceFee,
+            'service_fee_formatted' => 'Rp ' . number_format($serviceFee, 0, ',', '.'),
+            'grand_total'           => $grandTotal,
+            'grand_total_formatted' => $isFree ? 'GRATIS' : 'Rp ' . number_format($grandTotal, 0, ',', '.'),
+            'is_free'               => $isFree,
+        ]);
     }
 }

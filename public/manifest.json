@@ -1,15 +1,42 @@
 {
-    "name": "AmikomEventHub Enterprise",
-    "short_name": "AmikomEvent",
+    "name": "AmikomEventHub",
+    "short_name": "EventHub",
+    "description": "Platform reservasi tiket event online terbaik untuk mahasiswa dan organisasi.",
     "start_url": "/",
-    "background_color": "#6f42c1",
-    "theme_color": "#6f42c1",
     "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#0f0e1a",
+    "theme_color": "#6366f1",
+    "lang": "id",
     "icons": [
         {
-            "src": "https://cdn-icons-png.flaticon.com/512/1037/1037274.png",
+            "src": "/icons/icon-192.svg",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
+        },
+        {
+            "src": "/icons/icon-512.svg",
             "sizes": "512x512",
-            "type": "image/png"
+            "type": "image/svg+xml",
+            "purpose": "any maskable"
         }
-    ]
-}
+    ],
+    "shortcuts": [
+        {
+            "name": "Jelajahi Event",
+            "short_name": "Explore",
+            "description": "Temukan event terbaru",
+            "url": "/",
+            "icons": [{"src": "/icons/icon-192.png", "sizes": "192x192"}]
+        },
+        {
+            "name": "Tiket Saya",
+            "short_name": "Tiket",
+            "description": "Lihat tiket yang sudah dibeli",
+            "url": "/my-ticket",
+            "icons": [{"src": "/icons/icon-192.png", "sizes": "192x192"}]
+        }
+    ],
+    "categories": ["entertainment", "education", "events"]
+}

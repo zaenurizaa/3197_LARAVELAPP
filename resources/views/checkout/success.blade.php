@@ -13,8 +13,12 @@
         </div>
         <h2 class="text-3xl font-black mb-4">Terima Kasih!</h2>
         <p class="text-slate-500 mb-8 leading-relaxed text-sm">
-            Pembayaran untuk pesanan <strong>{{ $transaction->order_id }}</strong> sedang diproses atau telah berhasil. 
-            E-Ticket akan dikirim ke email Anda (<strong>{{ $transaction->customer_email }}</strong>) setelah pembayaran terkonfirmasi lunas.
+            @if($transaction->total_price == 0 || str_starts_with($transaction->order_id, 'FREE-'))
+                Pemesanan tiket gratis untuk pesanan <strong>{{ $transaction->order_id }}</strong> BERHASIL! E-Ticket resmi telah diterbitkan dan dikirim ke email Anda (<strong>{{ $transaction->customer_email }}</strong>).
+            @else
+                Pembayaran untuk pesanan <strong>{{ $transaction->order_id }}</strong> sedang diproses atau telah berhasil. 
+                E-Ticket akan dikirim ke email Anda (<strong>{{ $transaction->customer_email }}</strong>) setelah pembayaran terkonfirmasi lunas.
+            @endif
         </p>
         <div class="mt-8 flex flex-col sm:flex-row gap-4 justify-center items-center">
             <a href="{{ route('ticket') }}?order_id={{ $transaction->order_id }}" 
