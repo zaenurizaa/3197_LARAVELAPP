@@ -313,7 +313,7 @@
                                 </div>
                             </div>
 
-                            {{-- TAMPILKAN FORM ULASAN DI DAFTAR TIKET JIKA SUDAH LEWAT SEHARI --}}
+                            {{-- TAMPILKAN FORM ULASAN JIKA SUDAH LEWAT SEHARI --}}
                             @if(\Carbon\Carbon::parse($item->event->date)->addDay()->isPast())
                                 <div class="pt-4 border-t border-slate-100 mt-2">
                                     <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2">
@@ -355,6 +355,19 @@
                                             </button>
                                         </form>
                                     @endif
+                                </div>
+                            @else
+                                {{-- JIKA ACARA SUDAH LEWAT TAPI BELUM 24 JAM --}}
+                                <div class="pt-4 border-t border-slate-100 mt-2">
+                                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between opacity-70">
+                                        <div class="flex items-center gap-2">
+                                            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                                            <span class="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Form Ulasan Terkunci</span>
+                                        </div>
+                                        <span class="text-[10px] font-bold text-slate-500">
+                                            Terbuka pada {{ \Carbon\Carbon::parse($item->event->date)->addDay()->format('d M, H:i') }}
+                                        </span>
+                                    </div>
                                 </div>
                             @endif
                         </div>
