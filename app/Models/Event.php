@@ -20,8 +20,7 @@ class Event extends Model
         'price', 
         'stock', 
         'poster_path', 
-        'category_id', 
-        'user_id'
+        'category_id'
     ];
 
     protected $casts = [

@@ -59,9 +59,8 @@ class EventController extends Controller
             'poster'      => 'nullable|image|max:2048'
         ]);
 
-        // 🔥 1. ISI TENANT_ID DAN USER_ID SECARA OTOMATIS
+        // 🔥 1. ISI TENANT_ID SECARA OTOMATIS
         $user = Auth::user();
-        $data['user_id']   = $user->id;
         $data['tenant_id'] = $user->tenant_id; // Mengambil tenant_id milik user yang sedang buat event
 
         // 🔥 2. BUAT SLUG DARI TITLE
