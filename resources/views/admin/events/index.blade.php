@@ -11,10 +11,11 @@
         $isSuperAdmin = $user ? $user->isSuperAdmin() : false;
         $createRoute = $isSuperAdmin ? route('admin.events.create') : route('organizer.events.create');
     @endphp
-    <a href="{{ $createRoute }}" class="inline-block px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition">
-        + Tambah Event Baru
-    </a>
-</div>
+    <div class="mb-8">
+        <a href="{{ $createRoute }}" class="inline-block px-6 py-3.5 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-600/10 hover:bg-indigo-700 active:scale-95 transition text-xs uppercase tracking-wider">
+            + Tambah Event Baru
+        </a>
+    </div>
 
 <div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
     <div class="overflow-x-auto">
