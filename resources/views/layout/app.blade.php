@@ -141,11 +141,21 @@
                 </a>
             </div>
             
+            <!-- Pusat Bantuan & FAQ (H10: Help and Documentation) -->
+            <div>
+                <h4 class="text-white font-bold mb-6">Pusat Bantuan</h4>
+                <ul class="space-y-3 text-sm text-indigo-300">
+                    <li><a href="#faq" onclick="toggleHelpModal()" class="hover:text-white transition">❔ FAQ Pembelian Tiket</a></li>
+                    <li><a href="#faq" onclick="toggleHelpModal()" class="hover:text-white transition">🎫 Cara Klaim E-Sertifikat</a></li>
+                    <li><a href="#faq" onclick="toggleHelpModal()" class="hover:text-white transition">💳 Panduan Pembayaran</a></li>
+                </ul>
+            </div>
+
             <!-- Hubungi Kami -->
             <div>
                 <h4 class="text-white font-bold mb-6">Hubungi Kami</h4>
                 <ul class="space-y-3 text-sm text-indigo-300">
-                    <li>support@eventtiket.com</li>
+                    <li>support@amikomeventhub.com</li>
                     <li>+62 812 3456 7890</li>
                 </ul>
             </div>
@@ -156,6 +166,71 @@
             &copy; 2026 AmikomEventHub. Built with Laravel & Tailwind CSS.
         </div>
     </footer>
+
+    <!-- 🔥 FLOATING HELP BUTTON & MODAL (HEURISTIC H10) -->
+    <div class="fixed bottom-6 right-6 z-50">
+        <button onclick="toggleHelpModal()" class="w-12 h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-full flex items-center justify-center shadow-2xl transition active:scale-95 group">
+            <span class="text-lg font-bold group-hover:scale-110 transition">❓</span>
+        </button>
+    </div>
+
+    <!-- Modal Box Help & FAQ -->
+    <div id="help-modal" class="hidden fixed inset-0 z-50 overflow-y-auto bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full text-slate-800 shadow-2xl space-y-5 transform transition-all duration-300 scale-95 opacity-0" id="help-modal-card">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+                <h3 class="text-lg font-black text-slate-900 flex items-center gap-2">
+                    <span>💡</span> Pusat Bantuan & FAQ
+                </h3>
+                <button onclick="toggleHelpModal()" class="text-slate-400 hover:text-slate-700 font-bold text-lg">&times;</button>
+            </div>
+            
+            <div class="space-y-4 max-h-[400px] overflow-y-auto pr-2 text-xs leading-relaxed text-slate-600">
+                <div>
+                    <h4 class="font-bold text-slate-900 text-sm">1. Bagaimana cara memesan tiket event?</h4>
+                    <p class="mt-1">Pilih event yang diinginkan, klik "Pesan Tiket", masukkan data diri aktif (autofill aktif jika login), lalu lakukan pembayaran melalui payment gateway Midtrans.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-slate-900 text-sm">2. Bagaimana cara mengklaim E-Sertifikat?</h4>
+                    <p class="mt-1">E-sertifikat akan dikirimkan otomatis ke email terdaftar Anda setelah panitia memverifikasi kehadiran Anda di pintu masuk venue event.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-slate-900 text-sm">3. Mengapa saya tidak menerima E-Ticket di Email?</h4>
+                    <p class="mt-1">Silakan periksa folder Spam/Promosi pada email Anda. Anda juga dapat mengunduh tiket di menu "Tiket Saya" di pojok kanan atas website.</p>
+                </div>
+                <div>
+                    <h4 class="font-bold text-slate-900 text-sm">4. Transaksi dibatalkan secara otomatis?</h4>
+                    <p class="mt-1">Untuk tiket berbayar, Anda memiliki batas waktu pembayaran selama 15 menit. Jika melebihi waktu tersebut, pesanan otomatis dilepas untuk menjaga keadilan kuota pembeli lain.</p>
+                </div>
+            </div>
+
+            <div class="pt-4 border-t border-slate-100 text-center">
+                <button onclick="toggleHelpModal()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-bold transition">
+                    Tutup Panduan Bantuan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleHelpModal() {
+            const modal = document.getElementById('help-modal');
+            const card = document.getElementById('help-modal-card');
+            
+            if (modal.classList.contains('hidden')) {
+                modal.classList.remove('hidden');
+                setTimeout(() => {
+                    card.classList.remove('scale-95', 'opacity-0');
+                    card.classList.add('scale-100', 'opacity-100');
+                }, 50);
+            } else {
+                card.classList.remove('scale-100', 'opacity-100');
+                card.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                }, 200);
+            }
+        }
+    </script>
 
     @stack('scripts')
 </body>
