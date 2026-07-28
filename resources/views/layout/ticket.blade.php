@@ -257,22 +257,69 @@
                     @endphp
 
                     @forelse($successTransactions as $item)
-                        <div class="p-4 border border-slate-100 rounded-2xl hover:border-indigo-200 transition flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white shadow-sm">
-                            <div>
-                                <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">
-                                    #{{ $item->order_id }}
-                                </span>
-                                <h3 class="text-sm font-bold text-slate-800 mt-2">{{ $item->event->title ?? 'Event Tidak Ditemukan' }}</h3>
-                                <p class="text-xs text-slate-400 mt-1">
-                                    📅 {{ \Carbon\Carbon::parse($item->event->date ?? now())->format('d M Y, H:i') }} | 📍 {{ $item->event->location ?? 'Amikom' }}
-                                </p>
+                        <div class="p-4 border border-slate-100 rounded-2xl hover:border-indigo-200 transition flex flex-col gap-4 bg-white shadow-sm">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div>
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-md">
+                                        #{{ $item->order_id }}
+                                    </span>
+                                    <h3 class="text-sm font-bold text-slate-800 mt-2">{{ $item->event->title ?? 'Event Tidak Ditemukan' }}</h3>
+                                    <p class="text-xs text-slate-400 mt-1">
+                                        📅 {{ \Carbon\Carbon::parse($item->event->date ?? now())->format('d M Y, H:i') }} | 📍 {{ $item->event->location ?? 'Amikom' }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <a href="{{ route('ticket', ['order_id' => $item->order_id]) }}"
+                                        class="inline-block px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-md shadow-indigo-100">
+                                        Cetak E-Ticket
+                                    </a>
+                                </div>
                             </div>
-                            <div>
-                                <a href="{{ route('ticket', ['order_id' => $item->order_id]) }}"
-                                    class="inline-block px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-md shadow-indigo-100">
-                                    Cetak E-Ticket
-                                </a>
-                            </div>
+
+                            {{-- TAMPILKAN FORM ULASAN DI DAFTAR TIKET JIKA SUDAH LEWAT SEHARI --}}
+                            @if(\Carbon\Carbon::parse($item->event->date)->addDay()->isPast())
+                                <div class="pt-4 border-t border-slate-100 mt-2">
+                                    <h5 class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-3 flex items-center gap-2">
+                                        <svg class="w-4 h-4 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                        Beri Nilai Event & Kepanitiaan
+                                    </h5>
+                                    
+                                    @if($item->review)
+                                        <div class="p-3 bg-amber-50/50 border border-amber-100/60 rounded-xl space-y-2">
+                                            <div class="flex items-center justify-between">
+                                                <span class="text-[9px] font-bold uppercase tracking-wider text-amber-800">Ulasan Anda Telah Terkirim!</span>
+                                                <span class="text-amber-500 font-bold text-xs">
+                                                    @for($s = 1; $s <= 5; $s++)
+                                                        {!! $s <= $item->review->rating ? '★' : '☆' !!}
+                                                    @endfor
+                                                </span>
+                                            </div>
+                                            <p class="text-xs text-slate-600 italic">"{{ $item->review->comment }}"</p>
+                                        </div>
+                                    @else
+                                        <form action="{{ route('review.store') }}" method="POST" class="space-y-3">
+                                            @csrf
+                                            <input type="hidden" name="transaction_id" value="{{ $item->id }}">
+                                            
+                                            <div>
+                                                <div class="flex items-center gap-1 mb-2">
+                                                    <input type="hidden" name="rating" id="rating-value-{{ $item->id }}" value="5">
+                                                    @for($i = 1; $i <= 5; $i++)
+                                                        <button type="button" onclick="setRatingList({{ $item->id }}, {{ $i }})" id="star-btn-{{ $item->id }}-{{ $i }}" class="text-2xl text-amber-400 focus:outline-none transition active:scale-90">
+                                                            ★
+                                                        </button>
+                                                    @endfor
+                                                    <span id="rating-label-{{ $item->id }}" class="text-[10px] font-bold text-amber-600 ml-2">Sempurna</span>
+                                                </div>
+                                                <textarea name="comment" rows="2" class="block w-full bg-slate-50 border border-slate-200 text-slate-700 py-2 px-3 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/10 focus:border-indigo-600 transition text-xs placeholder:text-slate-400/70 font-medium" placeholder="Tulis kritik dan saran membangun untuk panitia..." required></textarea>
+                                            </div>
+                                            <button type="submit" class="w-full py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-[10px] uppercase tracking-wider transition shadow-sm">
+                                                Kirim Ulasan Resmi
+                                            </button>
+                                        </form>
+                                    @endif
+                                </div>
+                            @endif
                         </div>
                     @empty
                         <div class="py-12 text-center">
@@ -322,6 +369,30 @@
             if(targetBtn) {
                 targetBtn.classList.remove('border-transparent', 'text-slate-400');
                 targetBtn.classList.add('border-indigo-600', 'text-indigo-600');
+            }
+        }
+
+        // Script untuk form rating bintang di daftar tiket
+        function setRatingList(itemId, val) {
+            const labels = {
+                1: 'Sangat Kecewa',
+                2: 'Buruk',
+                3: 'Cukup',
+                4: 'Bagus',
+                5: 'Sempurna'
+            };
+            document.getElementById('rating-value-' + itemId).value = val;
+            document.getElementById('rating-label-' + itemId).innerText = labels[val];
+
+            for (let s = 1; s <= 5; s++) {
+                const star = document.getElementById(`star-btn-${itemId}-${s}`);
+                if (s <= val) {
+                    star.classList.remove('text-slate-300');
+                    star.classList.add('text-amber-400');
+                } else {
+                    star.classList.remove('text-amber-400');
+                    star.classList.add('text-slate-300');
+                }
             }
         }
     </script>
