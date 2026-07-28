@@ -101,8 +101,8 @@
     </main>
 
     <!-- FOOTER PUBLIK -->
-    <footer class="bg-indigo-900 text-indigo-100 py-20 px-6 mt-20">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-10">
+    <footer class="bg-indigo-900 text-indigo-100 py-16 px-6 mt-20">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 md:grid-cols-6 gap-8">
             
             <!-- Branding -->
             <div class="space-y-4 md:col-span-2">
