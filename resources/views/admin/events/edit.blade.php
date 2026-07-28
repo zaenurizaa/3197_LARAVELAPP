@@ -7,7 +7,7 @@
 @section('content')
 <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm max-w-3xl">
     
-    <form action="{{ route('admin.events.update', $event->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+    <form id="event-form" action="{{ route('admin.events.update', $event->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
         @method('PUT') 
 
@@ -238,5 +238,32 @@
             document.getElementById('no-tiers-helper').classList.remove('hidden');
         }
     }
+
+    // 🔥 VALIDATOR TANGGAL DYNAMIC PRICING TIER (PREVENTION ERROR)
+    document.getElementById('event-form').addEventListener('submit', function(e) {
+        const eventDateVal = document.getElementsByName('date')[0].value;
+        if (!eventDateVal) return;
+        
+        const eventDate = new Date(eventDateVal);
+        let hasError = false;
+
+        // Loop per baris tanggal akhir penjualan tier
+        document.querySelectorAll('input[name*="[end_date]"]').forEach(input => {
+            if (input.value) {
+                const endDate = new Date(input.value);
+                if (endDate > eventDate) {
+                    hasError = true;
+                    input.classList.add('border-rose-500', 'bg-rose-50');
+                } else {
+                    input.classList.remove('border-rose-500', 'bg-rose-50');
+                }
+            }
+        });
+
+        if (hasError) {
+            alert("⚠️ Kesalahan Pengisian Tanggal:\nTanggal akhir penjualan tier tiket tidak boleh melebihi tanggal pelaksanaan event utama!");
+            e.preventDefault();
+        }
+    });
 </script>
 @endsection
