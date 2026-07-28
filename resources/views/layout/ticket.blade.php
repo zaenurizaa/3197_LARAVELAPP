@@ -131,20 +131,44 @@
 
                 @if($transaction->review)
                     <!-- TAMPILAN JIKA USER SUDAH PERNAH MENGISI ULASAN -->
-                    <div class="p-4 bg-amber-50/50 border border-amber-100/60 rounded-2xl space-y-2">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-amber-800">Ulasan Anda Telah Terkirim!</span>
-                            <span class="text-amber-500 font-bold text-sm">
-                                @for($s = 1; $s <= 5; $s++)
-                                    {!! $s <= $transaction->review->rating ? '★' : '☆' !!}
-                                @endfor
-                            </span>
-                        </div>
-                        <p class="text-xs text-slate-600 italic">
-                            "{{ $transaction->review->comment }}"
-                        </p>
-                        <div class="text-[9px] text-slate-400 text-right font-medium">
-                            Dikirim pada {{ $transaction->review->created_at->format('d M Y, H:i') }}
+                    <div class="mt-4">
+                        <h6 class="text-[11px] font-bold text-slate-700 mb-3">Reviewmu untuk Event Ini</h6>
+                        <div class="p-5 bg-[#f0f0f0] rounded-2xl relative border border-slate-200/60">
+                            <!-- Flash message could be here if just submitted -->
+                            @if(session('success'))
+                                <div class="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1.5 bg-green-200 text-green-700 text-[10px] font-bold rounded-lg shadow-sm whitespace-nowrap">
+                                    Terima kasih atas ulasan Anda!
+                                </div>
+                            @endif
+
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center gap-3">
+                                    @php
+                                        $name = $transaction->customer_name ?? Auth::user()->name ?? 'Peserta';
+                                        $initials = strtoupper(substr(explode(' ', $name)[0], 0, 1) . substr(explode(' ', $name)[1] ?? '', 0, 1));
+                                        if(strlen($initials) < 1) $initials = 'P';
+                                    @endphp
+                                    <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                                        {{ $initials }}
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-slate-800 text-xs">{{ $name }}</div>
+                                        <div class="text-[10px] text-slate-500 mt-0.5">{{ $transaction->review->created_at->format('d M Y') }}</div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-1 text-amber-400 text-sm">
+                                    @for($s = 1; $s <= 5; $s++)
+                                        @if($s <= $transaction->review->rating)
+                                            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                        @else
+                                            <svg class="w-4 h-4 text-slate-300 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                        @endif
+                                    @endfor
+                                </div>
+                            </div>
+                            <p class="mt-3 text-slate-700 text-xs ml-[52px]">
+                                {{ $transaction->review->comment }}
+                            </p>
                         </div>
                     </div>
                 @else
@@ -322,16 +346,38 @@
                                     </h5>
                                     
                                     @if($item->review)
-                                        <div class="p-3 bg-amber-50/50 border border-amber-100/60 rounded-xl space-y-2">
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-[9px] font-bold uppercase tracking-wider text-amber-800">Ulasan Anda Telah Terkirim!</span>
-                                                <span class="text-amber-500 font-bold text-xs">
-                                                    @for($s = 1; $s <= 5; $s++)
-                                                        {!! $s <= $item->review->rating ? '★' : '☆' !!}
-                                                    @endfor
-                                                </span>
+                                        <div class="mt-4">
+                                            <h6 class="text-[11px] font-bold text-slate-700 mb-3">Reviewmu untuk Event Ini</h6>
+                                            <div class="p-5 bg-[#f0f0f0] rounded-2xl relative border border-slate-200/60">
+                                                <div class="flex items-start justify-between">
+                                                    <div class="flex items-center gap-3">
+                                                        @php
+                                                            $name = $item->transaction->customer_name ?? Auth::user()->name ?? 'Peserta';
+                                                            $initials = strtoupper(substr(explode(' ', $name)[0], 0, 1) . substr(explode(' ', $name)[1] ?? '', 0, 1));
+                                                            if(strlen($initials) < 1) $initials = 'P';
+                                                        @endphp
+                                                        <div class="w-10 h-10 rounded-full bg-indigo-500 flex items-center justify-center text-white font-bold text-sm shrink-0">
+                                                            {{ $initials }}
+                                                        </div>
+                                                        <div>
+                                                            <div class="font-bold text-slate-800 text-xs">{{ $name }}</div>
+                                                            <div class="text-[10px] text-slate-500 mt-0.5">{{ $item->review->created_at->format('d M Y') }}</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="flex gap-1 text-amber-400 text-sm">
+                                                        @for($s = 1; $s <= 5; $s++)
+                                                            @if($s <= $item->review->rating)
+                                                                <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                            @else
+                                                                <svg class="w-4 h-4 text-slate-300 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+                                                            @endif
+                                                        @endfor
+                                                    </div>
+                                                </div>
+                                                <p class="mt-3 text-slate-700 text-xs ml-[52px]">
+                                                    {{ $item->review->comment }}
+                                                </p>
                                             </div>
-                                            <p class="text-xs text-slate-600 italic">"{{ $item->review->comment }}"</p>
                                         </div>
                                     @else
                                         <form action="{{ route('review.store') }}" method="POST" class="space-y-3">
