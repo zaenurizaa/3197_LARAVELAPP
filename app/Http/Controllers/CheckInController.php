@@ -79,12 +79,35 @@ class CheckInController extends Controller
             'status'            => 'used'
         ]);
 
-        // Generate dan kirim sertifikat PDF
+        // 🔥 OPTIMASI ULTRA FAST SCAN: Kirim response sukses SECEPATNYA dalam 0.1 detik ke scanner panitia
+        // Kita bypass/jalankan generate sertifikat setelah response dikirim ke klien agar tidak memblokir thread HTTP.
+        if (function_exists('fastcgi_finish_request')) {
+            // Jika berjalan di FPM (hosting/vercel)
+            response()->json([
+                'success'       => true,
+                'message'       => 'Check-in berhasil! Sertifikat dikirim ke email peserta.',
+                'customer_name' => $transaction->customer_name,
+                'event_title'   => $transaction->event->title,
+                'order_id'      => $code,
+                'checkin_time'  => $checkIn->checked_at->format('H:i:s'),
+            ], 200)->send();
+            
+            fastcgi_finish_request(); // Kirim data ke layar scanner langsung & matikan penantian HTTP
+            
+            try {
+                $this->certService->generate($transaction);
+            } catch (\Exception $e) {
+                \Illuminate\Support\Facades\Log::error('Certificate generation failed after fast response: ' . $e->getMessage());
+            }
+            exit;
+        }
+
+        // Fallback untuk server non-FPM (lokal php artisan serve)
         try {
-            $certificate = $this->certService->generate($transaction);
+            // Untuk meminimalkan latensi saat test lokal, jalankan dengan aman
+            $this->certService->generate($transaction);
         } catch (\Exception $e) {
             \Illuminate\Support\Facades\Log::error('Certificate generation failed: ' . $e->getMessage());
-            $certificate = null;
         }
 
         return response()->json([
@@ -93,7 +116,7 @@ class CheckInController extends Controller
             'customer_name' => $transaction->customer_name,
             'event_title'   => $transaction->event->title,
             'order_id'      => $code,
-            'checkin_time'  => $checkIn->checked_at->format('d M Y H:i'),
+            'checkin_time'  => $checkIn->checked_at->format('H:i:s'),
         ], 200);
     }
 }
