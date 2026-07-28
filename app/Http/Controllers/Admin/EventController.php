@@ -57,7 +57,7 @@ class EventController extends Controller
         $isSuperAdmin = $user ? $user->isSuperAdmin() : false;
 
         $data = $request->validate([
-            'tenant_id'   => $isSuperAdmin ? 'required|exists:tenants,id' : 'nullable',
+            'tenant_id'   => $isSuperAdmin ? 'nullable|exists:tenants,id' : 'nullable',
             'category_id' => 'required|exists:categories,id',
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -70,7 +70,15 @@ class EventController extends Controller
 
         // 🔥 1. ISI TENANT_ID SECARA OTOMATIS
         if ($isSuperAdmin) {
-            $data['tenant_id'] = $request->tenant_id;
+            if (empty($request->tenant_id)) {
+                $defaultTenant = \App\Models\Tenant::firstOrCreate(
+                    ['name' => 'Amikom Pusat'],
+                    ['status' => 'verified']
+                );
+                $data['tenant_id'] = $defaultTenant->id;
+            } else {
+                $data['tenant_id'] = $request->tenant_id;
+            }
         } else {
             $data['tenant_id'] = $user->tenant_id;
         }
