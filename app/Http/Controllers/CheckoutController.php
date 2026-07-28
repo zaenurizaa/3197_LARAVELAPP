@@ -140,7 +140,11 @@ class CheckoutController extends Controller
                         $msgFree .= "▪️ *Status:* BERHASIL (GRATIS)\n\n";
                         $msgFree .= "Silakan periksa kotak masuk email Anda untuk tiket resminya.\n_Amikom Event Hub Team_";
 
-                        Http::withHeaders(['Authorization' => $fonnteToken])->asForm()->post('https://api.fonnte.com/send', [
+                        Http::withHeaders([
+                            'Authorization' => $fonnteToken
+                        ])->withoutVerifying() // 🛡️ Hindari cURL error SSL local issuer di lokal Laragon
+                        ->asForm()
+                        ->post('https://api.fonnte.com/send', [
                             'target'      => $phoneWa,
                             'message'     => $msgFree,
                             'countryCode' => '62'
@@ -237,7 +241,9 @@ class CheckoutController extends Controller
 
                     Http::withHeaders([
                         'Authorization' => $fonnteToken
-                    ])->asForm()->post('https://api.fonnte.com/send', [
+                    ])->withoutVerifying() // 🛡️ Hindari cURL error SSL local issuer di lokal Laragon
+                    ->asForm()
+                    ->post('https://api.fonnte.com/send', [
                         'target'      => $targetPhone,
                         'message'     => $msg,
                         'countryCode' => '62'
