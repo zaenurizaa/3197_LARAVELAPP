@@ -255,8 +255,8 @@
                     document.getElementById('det-time-row').classList.remove('hidden');
                     document.getElementById('result-details').classList.remove('hidden');
 
-                    // 🔥 AUTO RESET INSTAN SETELAH 1.5 DETIK UNTUK SCAN BERIKUTNYA
-                    setTimeout(resetScanner, 1500);
+                    // 🔓 Langsung buka kunci agar kamera siap scan tiket berikutnya tanpa menutup info tiket saat ini
+                    isProcessing = false;
 
                 } else if (res.status === 409) {
                     // TIKET SUDAH DIGUNAKAN (Double Entry)
@@ -274,8 +274,8 @@
                     document.getElementById('det-time-row').classList.remove('hidden');
                     document.getElementById('result-details').classList.remove('hidden');
 
-                    // 🔥 AUTO RESET INSTAN SETELAH 1.5 DETIK UNTUK SCAN BERIKUTNYA
-                    setTimeout(resetScanner, 1500);
+                    // 🔓 Buka kunci scanner
+                    isProcessing = false;
 
                 } else {
                     // TIKET TIDAK VALID / BELUM LUNAS
@@ -296,8 +296,8 @@
                         document.getElementById('result-details').classList.add('hidden');
                     }
 
-                    // 🔥 AUTO RESET INSTAN SETELAH 1.5 DETIK UNTUK SCAN BERIKUTNYA
-                    setTimeout(resetScanner, 1500);
+                    // 🔓 Buka kunci scanner
+                    isProcessing = false;
                 }
             })
             .catch(err => {
@@ -306,8 +306,8 @@
                 document.getElementById('result-title').innerText = "Koneksi Terputus";
                 document.getElementById('result-msg').innerText = "Gagal memverifikasi tiket karena jaringan terputus. Silakan coba kembali.";
                 
-                // Reset setelah 3 detik jika error jaringan
-                setTimeout(resetScanner, 3000);
+                // 🔓 Buka kunci scanner
+                isProcessing = false;
             });
         }
 
