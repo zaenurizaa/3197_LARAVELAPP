@@ -188,7 +188,11 @@ class EventController extends Controller
 
         $event->delete();
 
-        return redirect()->route('admin.events.index')->with('success', 'Data event berhasil dihapus secara permanen.');
+        // 🔥 DYNAMIC REDIRECT BERDASARKAN ROLE LOGIN PASCA HAPUS
+        $user = Auth::guard('admin')->user() ?? Auth::guard('organizer')->user() ?? auth()->user();
+        $redirectRoute = $user->isSuperAdmin() ? 'admin.events.index' : 'organizer.events.index';
+
+        return redirect()->route($redirectRoute)->with('success', 'Data event berhasil dihapus secara permanen.');
     }
 
     /**
