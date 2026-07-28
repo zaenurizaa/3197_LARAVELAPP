@@ -66,7 +66,6 @@
             
             <div class="h-5 w-px bg-slate-300 mx-2"></div>
 
-            {{-- 🔥 Tampilkan Profil User jika login di Guard WEB --}}
             @if(Auth::guard('web')->check())
                 <div class="flex items-center gap-3">
                     <img src="{{ $authUser->avatar ?: 'https://ui-avatars.com/api/?background=4f46e5&color=fff&name='.urlencode($authUser->name) }}" 
@@ -84,6 +83,7 @@
                         @csrf
                     </form>
                 </div>
+            @else
                 {{-- Jika Guest, Tampilkan Tombol Login Terpadu --}}
                 <a href="{{ route('login') }}" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-md shadow-indigo-200 transition">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
