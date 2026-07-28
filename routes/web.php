@@ -139,5 +139,9 @@ Route::prefix('organizer')->name('organizer.')->group(function () {
 
         // Scanner Gatekeeper (Check-in Scanner Organizer)
         Route::get('/checkin', [CheckInController::class, 'scan'])->name('checkin.scan');
+
+        // 🔥 Edit Profil Organizer/Tenant
+        Route::get('/profile', [App\Http\Controllers\Admin\TenantProfileController::class, 'edit'])->name('profile.edit');
+        Route::put('/profile', [App\Http\Controllers\Admin\TenantProfileController::class, 'update'])->name('profile.update');
     });
 });

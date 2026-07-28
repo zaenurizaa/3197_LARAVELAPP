@@ -63,7 +63,7 @@ class GoogleController extends Controller
             Auth::guard('web')->login($user);
             session()->regenerate();
 
-            return redirect()->route('home')->with('success', 'Selamat datang, ' . $user->name);
+            return redirect()->route('home')->with('google_success', 'Berhasil login menggunakan Google!');
         } catch (\Exception $e) {
             return redirect()->route('home')->with('error', 'Gagal melakukan login menggunakan Google: ' . $e->getMessage());
         }

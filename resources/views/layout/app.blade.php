@@ -62,7 +62,7 @@
             <!-- Menu Tiket Saya -->
             <a href="{{ route('ticket') }}" 
                class="transition text-sm {{ $isTicket ? 'bg-indigo-50 text-indigo-600 font-bold px-3 py-1.5 rounded-xl' : 'text-slate-600 hover:text-indigo-600 px-3 py-1.5' }}">
-                Tiket Saya
+                Tiketku
             </a>
             
             <div class="h-5 w-px bg-slate-300 mx-2"></div>
@@ -106,7 +106,7 @@
         <div id="mobile-menu" class="hidden absolute top-20 left-0 right-0 bg-white/95 backdrop-blur-md rounded-2xl border border-slate-100 shadow-xl p-6 flex flex-col gap-4 mx-4 z-40 animate-in fade-in slide-in-from-top-4 duration-300">
             <a href="{{ url('/') }}" onclick="toggleMobileMenu()" class="text-sm font-bold text-slate-700 hover:text-indigo-600 transition">Jelajahi</a>
             <a href="{{ url('/#events') }}" onclick="toggleMobileMenu()" class="text-sm font-bold text-slate-700 hover:text-indigo-600 transition">Kategori</a>
-            <a href="{{ route('ticket') }}" onclick="toggleMobileMenu()" class="text-sm font-bold text-slate-700 hover:text-indigo-600 transition">Tiket Saya</a>
+            <a href="{{ route('ticket') }}" onclick="toggleMobileMenu()" class="text-sm font-bold text-slate-700 hover:text-indigo-600 transition">Tiketku</a>
             <div class="h-px bg-slate-100 my-2"></div>
             @if(Auth::guard('web')->check())
                 <div class="flex items-center justify-between">
@@ -270,6 +270,24 @@
             </div>
         </div>
     </div>
+
+    <!-- 🔥 NOTIFIKASI MELAYANG (TOAST/BANNER SUCCESS) SEPERTI GAMBAR USER -->
+    @if(session('success') || session('google_success'))
+        <div id="toast-success" class="fixed bottom-6 right-6 z-50 bg-[#cbfbdf] text-[#15803d] border border-[#a3f7c2] px-6 py-4 rounded-2xl shadow-xl font-medium text-sm animate-bounce flex items-center gap-2">
+            <span>{{ session('success') ?: session('google_success') }}</span>
+            <button onclick="document.getElementById('toast-success').remove()" class="text-[#15803d] hover:text-[#166534] font-black ml-2">&times;</button>
+        </div>
+        <script>
+            setTimeout(() => {
+                const toast = document.getElementById('toast-success');
+                if(toast) {
+                    toast.classList.remove('animate-bounce');
+                    toast.classList.add('animate-out', 'fade-out', 'slide-out-to-bottom-10', 'duration-500');
+                    setTimeout(() => toast.remove(), 500);
+                }
+            }, 4000);
+        </script>
+    @endif
 
     <script>
         function toggleHelpModal() {

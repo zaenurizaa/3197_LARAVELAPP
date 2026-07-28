@@ -7,39 +7,86 @@ use App\Models\Transaction;
 use App\Models\Event;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
-        // 1. Stat Utama Ringkasan
-        $totalPendapatan = Transaction::whereIn('status', ['Success', 'success', 'settlement'])->sum('total_price');
-        $tiketTerjual    = Transaction::whereIn('status', ['Success', 'success', 'settlement'])->count();
-        $eventAktif      = Event::count();
-        $pesananPending  = Transaction::where('status', 'Pending')->count();
+        $user = Auth::guard('admin')->user() ?? Auth::guard('organizer')->user() ?? auth()->user();
+        $isSuperAdmin = $user ? $user->isSuperAdmin() : false;
 
-        // 2. Ambil 5 Transaksi Terbaru
-        $latestTransactions = Transaction::with('event')->latest()->take(5)->get();
+        if ($isSuperAdmin) {
+            // 1. Stat Utama Ringkasan Superadmin
+            $totalPendapatan = Transaction::whereIn('status', ['Success', 'success', 'settlement'])->sum('total_price');
+            $tiketTerjual    = Transaction::whereIn('status', ['Success', 'success', 'settlement'])->count();
+            $eventAktif      = Event::count();
+            $pesananPending  = Transaction::where('status', 'Pending')->count();
+            
+            // 4 Tambahan Info Superadmin
+            $totalOrganizer  = \App\Models\Tenant::count();
+            $partnerTerdaftar = \App\Models\Partner::count();
+            $kategoriEvent   = \App\Models\Category::count();
+            $totalPengguna   = User::count();
 
-        // 3. Data Pertumbuhan Pengguna Per Bulan (Tahun Ini)
-        $userGrowth = User::select(
-                DB::raw('MONTH(created_at) as month'),
-                DB::raw('COUNT(*) as total')
-            )
-            ->whereYear('created_at', date('Y'))
-            ->groupBy('month')
-            ->pluck('total', 'month')
-            ->toArray();
+            // 2. Ambil 5 Transaksi Terbaru
+            $latestTransactions = Transaction::with('event')->latest()->take(5)->get();
 
-        // 4. Data Pertumbuhan Penyelenggaraan Event Per Bulan (Tahun Ini)
-        $eventGrowth = Event::select(
-                DB::raw('MONTH(created_at) as month'),
-                DB::raw('COUNT(*) as total')
-            )
-            ->whereYear('created_at', date('Y'))
-            ->groupBy('month')
-            ->pluck('total', 'month')
-            ->toArray();
+            // 3. Data Pertumbuhan Pengguna Per Bulan (Tahun Ini)
+            $userGrowth = User::select(
+                    DB::raw('MONTH(created_at) as month'),
+                    DB::raw('COUNT(*) as total')
+                )
+                ->whereYear('created_at', date('Y'))
+                ->groupBy('month')
+                ->pluck('total', 'month')
+                ->toArray();
+
+            // 4. Data Pertumbuhan Penyelenggaraan Event Per Bulan (Tahun Ini)
+            $eventGrowth = Event::select(
+                    DB::raw('MONTH(created_at) as month'),
+                    DB::raw('COUNT(*) as total')
+                )
+                ->whereYear('created_at', date('Y'))
+                ->groupBy('month')
+                ->pluck('total', 'month')
+                ->toArray();
+        } else {
+            // Organizer - filter data berdasarkan tenant_id milik organizer saja
+            $tenantId = $user->tenant_id;
+
+            $totalPendapatan = Transaction::where('tenant_id', $tenantId)
+                ->whereIn('status', ['Success', 'success', 'settlement'])
+                ->sum('total_price');
+            $tiketTerjual    = Transaction::where('tenant_id', $tenantId)
+                ->whereIn('status', ['Success', 'success', 'settlement'])
+                ->count();
+            $eventAktif      = Event::where('tenant_id', $tenantId)->count();
+            $pesananPending  = Transaction::where('tenant_id', $tenantId)->where('status', 'Pending')->count();
+
+            // Sisa variabel kosong untuk layout organizer agar tidak error
+            $totalOrganizer  = 0;
+            $partnerTerdaftar = 0;
+            $kategoriEvent   = 0;
+            $totalPengguna   = 0;
+
+            $latestTransactions = Transaction::with('event')
+                ->where('tenant_id', $tenantId)
+                ->latest()
+                ->take(5)
+                ->get();
+
+            $userGrowth = [];
+            $eventGrowth = Event::select(
+                    DB::raw('MONTH(created_at) as month'),
+                    DB::raw('COUNT(*) as total')
+                )
+                ->where('tenant_id', $tenantId)
+                ->whereYear('created_at', date('Y'))
+                ->groupBy('month')
+                ->pluck('total', 'month')
+                ->toArray();
+        }
 
         // Mapping 12 Bulan (Jan - Des)
         $months    = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -55,7 +102,11 @@ class DashboardController extends Controller
             'totalPendapatan', 
             'tiketTerjual', 
             'eventAktif', 
-            'pesananPending', 
+            'pesananPending',
+            'totalOrganizer',
+            'partnerTerdaftar',
+            'kategoriEvent',
+            'totalPengguna',
             'latestTransactions',
             'months',
             'userData',

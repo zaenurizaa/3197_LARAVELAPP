@@ -17,8 +17,20 @@ class EventController extends Controller
      */
     public function index()
     {
-        // Memanggil relasi category & tenant agar efisien
-        $events = Event::with(['category', 'tenant'])->latest()->paginate(10);
+        $user = Auth::guard('admin')->user() ?? Auth::guard('organizer')->user() ?? auth()->user();
+        $isSuperAdmin = $user ? $user->isSuperAdmin() : false;
+
+        if ($isSuperAdmin) {
+            // Superadmin melihat semua event
+            $events = Event::with(['category', 'tenant'])->latest()->paginate(10);
+        } else {
+            // Organizer hanya melihat event miliknya sendiri
+            $events = Event::with(['category', 'tenant'])
+                ->where('tenant_id', $user->tenant_id)
+                ->latest()
+                ->paginate(10);
+        }
+        
         return view('admin.events.index', compact('events'));
     }
 
@@ -92,6 +104,11 @@ class EventController extends Controller
      */
     public function edit(Event $event)
     {
+        $user = Auth::guard('admin')->user() ?? Auth::guard('organizer')->user() ?? auth()->user();
+        if (!$user->isSuperAdmin() && $event->tenant_id !== $user->tenant_id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk mengedit event ini.');
+        }
+
         $categories = Category::all();
         return view('admin.events.edit', compact('event', 'categories'));
     }
@@ -101,6 +118,11 @@ class EventController extends Controller
      */
     public function update(Request $request, Event $event)
     {
+        $user = Auth::guard('admin')->user() ?? Auth::guard('organizer')->user() ?? auth()->user();
+        if (!$user->isSuperAdmin() && $event->tenant_id !== $user->tenant_id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk mengubah event ini.');
+        }
+
         $data = $request->validate([
             'category_id' => 'required|exists:categories,id',
             'title'       => 'required|string|max:255',
@@ -153,6 +175,11 @@ class EventController extends Controller
      */
     public function destroy(Event $event)
     {
+        $user = Auth::guard('admin')->user() ?? Auth::guard('organizer')->user() ?? auth()->user();
+        if (!$user->isSuperAdmin() && $event->tenant_id !== $user->tenant_id) {
+            abort(403, 'Anda tidak memiliki hak akses untuk menghapus event ini.');
+        }
+
         $event->delete();
 
         return redirect()->route('admin.events.index')->with('success', 'Data event berhasil dihapus secara permanen.');
