@@ -10,22 +10,21 @@ use Illuminate\View\View;
 
 class TenantApprovalController extends Controller
 {
-    /**
-     * Tampilkan daftar tenant pending & tenant aktif
-     */
-    public function index(): View
+    public function index(Request $request): View
     {
-        $pendingTenants = Tenant::with('users')
-            ->where('status', 'pending')
-            ->latest()
-            ->get();
+        $search = $request->input('search');
 
-        $approvedTenants = Tenant::with('users')
-            ->where('status', 'verified')
-            ->latest()
-            ->paginate(10);
+        $query = Tenant::with(['users'])
+            ->withCount(['events']);
 
-        return view('admin.tenants.index', compact('pendingTenants', 'approvedTenants'));
+        if (!empty($search)) {
+            $query->where('name', 'LIKE', '%' . $search . '%');
+        }
+
+        // Ambil semua tenant (verified, pending, rejected) untuk ditampilkan di grid view Manajemen Organizer
+        $tenants = $query->latest()->get();
+
+        return view('admin.tenants.index', compact('tenants'));
     }
 
     /**

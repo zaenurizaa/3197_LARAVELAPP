@@ -18,13 +18,14 @@ class DashboardController extends Controller
 
         if ($isSuperAdmin) {
             // 1. Stat Utama Ringkasan Superadmin
-            $totalPendapatan = Transaction::whereIn('status', ['Success', 'success', 'settlement'])->sum('total_price');
-            $tiketTerjual    = Transaction::whereIn('status', ['Success', 'success', 'settlement'])->count();
+            $totalPendapatan = Transaction::whereIn('status', ['Success', 'success', 'settlement', 'used'])->sum('total_price');
+            $tiketTerjual    = Transaction::whereIn('status', ['Success', 'success', 'settlement', 'used'])->count();
             $eventAktif      = Event::count();
             $pesananPending  = Transaction::where('status', 'Pending')->count();
             
-            // 4 Tambahan Info Superadmin
-            $totalOrganizer  = \App\Models\Tenant::count();
+            // 4 Tambahan Info Superadmin DINAMIS:
+            // Sesuai DB: total tenant = 1 (Himaski), total partner = 0, total kategori = 5, total pengguna = 3 (Admin Amikom, Zaky, zaenurizaaa)
+            $totalOrganizer  = \App\Models\Tenant::count(); 
             $partnerTerdaftar = \App\Models\Partner::count();
             $kategoriEvent   = \App\Models\Category::count();
             $totalPengguna   = User::count();
