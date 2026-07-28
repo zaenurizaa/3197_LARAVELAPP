@@ -19,19 +19,7 @@
         </form>
     </div>
 
-    <!-- Alert status -->
-    @if(session('success'))
-        <div class="p-4 bg-emerald-50 border border-emerald-100 text-emerald-600 rounded-2xl font-bold flex items-center gap-2 shadow-sm text-xs">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            {{ session('success') }}
-        </div>
-    @endif
-    @if(session('info'))
-        <div class="p-4 bg-blue-50 border border-blue-100 text-blue-600 rounded-2xl font-bold flex items-center gap-2 shadow-sm text-xs">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-            {{ session('info') }}
-        </div>
-    @endif
+    {{-- Alert status dihapus karena sudah di-render secara terpusat/global oleh induk layout/admin.blade.php --}}
 
     <!-- Grid Manajemen Organizer Card persis gambar referensi terakhir -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
