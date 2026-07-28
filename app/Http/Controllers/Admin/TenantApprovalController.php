@@ -49,15 +49,17 @@ class TenantApprovalController extends Controller
             ->with('info', "Pendaftaran tenant '{$tenant->name}' telah ditolak.");
     }
 
-    /**
-     * Akhiri Kerja Sama / Hapus Tenant
-     */
     public function destroy(Tenant $tenant): RedirectResponse
     {
         $tenantName = $tenant->name;
+
+        // 🔥 Hapus secara kaskade semua user organizer yang berelasi dengan tenant ini agar bersih dari database
+        $tenant->users()->delete();
+        
+        // Hapus data tenant
         $tenant->delete();
 
         return redirect()->route('admin.tenants.index')
-            ->with('success', "Kerja sama dengan Tenant '{$tenantName}' telah diakhiri.");
+            ->with('success', "Kemitraan dengan Tenant '{$tenantName}' telah diakhiri dan seluruh datanya dihapus dari database.");
     }
 }

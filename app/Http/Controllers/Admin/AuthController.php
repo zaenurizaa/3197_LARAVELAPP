@@ -78,11 +78,24 @@ class AuthController extends Controller
         if (Auth::guard('organizer')->attempt($credentials)) {
             $user = Auth::guard('organizer')->user();
 
-            // 🔥 VALIDASI: Jika Admin mencoba login lewat Pintu Organizer
+            // 🔥 VALIDASI 1: Jika Admin mencoba login lewat Pintu Organizer
             if (!$user->isOrganizer()) {
                 Auth::guard('organizer')->logout();
                 $request->session()->invalidate();
                 return back()->with('error', 'Akses ditolak! Akun ini khusus Organizer/Tenant.');
+            }
+
+            // 🔥 VALIDASI 2: Jika status Tenant belum ACC (verified)
+            $tenant = $user->tenant;
+            if (!$tenant || $tenant->status !== 'verified') {
+                Auth::guard('organizer')->logout();
+                $request->session()->invalidate();
+                
+                $statusMsg = $tenant && $tenant->status === 'pending' 
+                    ? 'Pendaftaran akun Anda sedang ditinjau Superadmin. Silakan tunggu hingga disetujui.' 
+                    : 'Akun organisasi Anda belum disetujui atau dinonaktifkan oleh Superadmin.';
+                    
+                return back()->with('error', 'Akses ditolak! ' . $statusMsg);
             }
 
             $request->session()->regenerate();
