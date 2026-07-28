@@ -6,8 +6,12 @@
 @section('page_subtitle', 'Buat dan atur acara seru Anda di sini.')
 
 @section('content')
-<div class="mb-4 text-right">
-    <a href="{{ route('admin.events.create') }}" class="inline-block px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition">
+    @php
+        $user = Auth::guard('admin')->user() ?? Auth::guard('organizer')->user() ?? auth()->user();
+        $isSuperAdmin = $user ? $user->isSuperAdmin() : false;
+        $createRoute = $isSuperAdmin ? route('admin.events.create') : route('organizer.events.create');
+    @endphp
+    <a href="{{ $createRoute }}" class="inline-block px-6 py-3 bg-indigo-600 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-95 transition">
         + Tambah Event Baru
     </a>
 </div>
@@ -55,15 +59,19 @@
                         <p class="text-xs text-slate-400 font-medium">Stok: {{ $event->stock }}</p>
                     </td>
                     <td class="px-8 py-6">
+                        @php
+                            $editRoute = $isSuperAdmin ? route('admin.events.edit', $event->id) : route('organizer.events.edit', $event->id);
+                            $destroyRoute = $isSuperAdmin ? route('admin.events.destroy', $event->id) : route('organizer.events.destroy', $event->id);
+                        @endphp
                         <div class="flex justify-center gap-2">
-                            <a href="{{ route('admin.events.edit', $event->id) }}"
+                            <a href="{{ $editRoute }}"
                                 class="p-2.5 bg-indigo-50 text-indigo-600 rounded-xl hover:bg-indigo-600 hover:text-white transition shadow-sm">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 00-2 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
                                 </svg>
                             </a>
 
-                            <form action="{{ route('admin.events.destroy', $event->id) }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus acara ini?');">
+                            <form action="{{ $destroyRoute }}" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus acara ini?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="p-2.5 bg-rose-50 text-rose-600 rounded-xl hover:bg-rose-600 hover:text-white transition shadow-sm">

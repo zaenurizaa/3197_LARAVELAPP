@@ -96,7 +96,11 @@ class EventController extends Controller
             }
         }
 
-        return redirect()->route('admin.events.index')->with('success', 'Data Event berhasil ditambahkan.');
+        // 🔥 DYNAMIC REDIRECT BERDASARKAN ROLE LOGIN
+        $user = Auth::guard('admin')->user() ?? Auth::guard('organizer')->user() ?? auth()->user();
+        $redirectRoute = $user->isSuperAdmin() ? 'admin.events.index' : 'organizer.events.index';
+
+        return redirect()->route($redirectRoute)->with('success', 'Data Event berhasil ditambahkan.');
     }
 
     /**
@@ -167,7 +171,9 @@ class EventController extends Controller
             }
         }
 
-        return redirect()->route('admin.events.index')->with('success', 'Rincian data event berhasil diperbarui.');
+        // 🔥 DYNAMIC REDIRECT BERDASARKAN ROLE LOGIN
+        $redirectRoute = $user->isSuperAdmin() ? 'admin.events.index' : 'organizer.events.index';
+        return redirect()->route($redirectRoute)->with('success', 'Rincian data event berhasil diperbarui.');
     }
 
     /**

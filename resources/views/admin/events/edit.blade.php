@@ -7,7 +7,13 @@
 @section('content')
 <div class="bg-white p-8 rounded-[2.5rem] border border-slate-100 shadow-sm max-w-3xl">
     
-    <form id="event-form" action="{{ route('admin.events.update', $event->id) }}" method="POST" enctype="multipart/form-data" class="space-y-6">
+    @php
+        $user = Auth::guard('admin')->user() ?? Auth::guard('organizer')->user() ?? auth()->user();
+        $isSuperAdmin = $user ? $user->isSuperAdmin() : false;
+        $updateRoute = $isSuperAdmin ? route('admin.events.update', $event->id) : route('organizer.events.update', $event->id);
+    @endphp
+
+    <form id="event-form" action="{{ $updateRoute }}" method="POST" enctype="multipart/form-data" class="space-y-6">
         @csrf
         @method('PUT') 
 
