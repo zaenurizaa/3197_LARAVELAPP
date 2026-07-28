@@ -36,6 +36,24 @@
 
         <!-- Main Card Form -->
         <div class="bg-white py-8 px-6 shadow-xl shadow-slate-200/50 rounded-2xl border border-slate-100 sm:px-10">
+            
+            {{-- Notifikasi Error Validasi Global --}}
+            @if(session('error'))
+                <div class="mb-6 p-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl font-medium text-xs">
+                    {{ session('error') }}
+                </div>
+            @endif
+            @if($errors->any())
+                <div class="mb-6 p-4 bg-rose-50 border border-rose-100 text-rose-600 rounded-xl font-medium text-xs space-y-1">
+                    <p class="font-bold">Mohon perbaiki kesalahan berikut:</p>
+                    <ul class="list-disc pl-4 space-y-0.5">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
             <form action="{{ route('register.organizer.store') }}" method="POST" class="space-y-8">
                 @csrf
 
