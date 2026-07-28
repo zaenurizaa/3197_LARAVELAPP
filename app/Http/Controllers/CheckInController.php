@@ -38,7 +38,7 @@ class CheckInController extends Controller
 
         // Cari transaksi berdasarkan order_id (digunakan sebagai ticket QR payload)
         $transaction = Transaction::where('order_id', $code)
-                                  ->where('status', 'success')
+                                  ->whereIn('status', ['success', 'Success', 'settlement'])
                                   ->with('event')
                                   ->first();
 
@@ -47,6 +47,15 @@ class CheckInController extends Controller
                 'success' => false,
                 'message' => '❌ Tiket tidak ditemukan atau belum dibayar.',
             ], 404);
+        }
+
+        // 🔥 KONTROL HAK AKSES SCANNER: Pastikan jika yang memindai adalah Organizer/Tenant, tiket yang di-scan adalah event miliknya
+        $user = \Illuminate\Support\Facades\Auth::guard('admin')->user() ?? \Illuminate\Support\Facades\Auth::guard('organizer')->user() ?? auth()->user();
+        if ($user && $user->isOrganizer() && $transaction->tenant_id !== $user->tenant_id) {
+            return response()->json([
+                'success' => false,
+                'message' => '❌ Akses Ditolak! Tiket ini milik event dari organisasi lain.',
+            ], 403);
         }
 
         // Cek apakah sudah pernah check-in sebelumnya (prevent double entry)
