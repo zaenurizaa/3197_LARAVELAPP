@@ -15,14 +15,17 @@
                      class="w-full rounded-[2.5rem] shadow-2xl border-8 border-white object-cover aspect-3/4">
                 
                 {{-- 🔥 PENYELENGGARA: Menggunakan Nama Tenant / Organisasi --}}
-                <div class="mt-8 p-6 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                    <h4 class="font-bold mb-4 text-slate-800">Penyelenggara</h4>
+                <a href="{{ isset($event->tenant) ? route('organizer.profile', $event->tenant->slug) : '#' }}" class="block mt-8 p-6 bg-white rounded-3xl border border-slate-100 shadow-sm hover:border-indigo-300 hover:shadow-lg transition-all group">
+                    <h4 class="font-bold mb-4 text-slate-800 flex items-center justify-between">
+                        Penyelenggara
+                        <svg class="w-4 h-4 text-slate-400 group-hover:text-indigo-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </h4>
                     <div class="flex items-center gap-4">
-                        <div class="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 font-bold text-lg uppercase shrink-0">
+                        <div class="w-12 h-12 bg-indigo-100 rounded-2xl flex items-center justify-center text-indigo-600 font-bold text-lg uppercase shrink-0 group-hover:bg-indigo-600 group-hover:text-white transition">
                             {{ strtoupper(substr($event->tenant->name ?? $event->user->name ?? 'AE', 0, 2)) }}
                         </div>
                         <div>
-                            <p class="font-bold text-slate-800 leading-snug">
+                            <p class="font-bold text-slate-800 leading-snug group-hover:text-indigo-600 transition">
                                 {{ $event->tenant->name ?? $event->user->name ?? 'Amikom Event Hub Admin' }}
                             </p>
                             <p class="text-xs text-emerald-600 font-semibold flex items-center gap-1 mt-0.5">
@@ -33,7 +36,7 @@
                             </p>
                         </div>
                     </div>
-                </div>
+                </a>
             </div>
         </div>
 

@@ -33,6 +33,8 @@ Route::prefix('event')->group(function () {
     Route::get('/{event}', [EventController::class, 'show'])->name('events.show');
 });
 
+Route::get('/organizer/{slug}', [EventController::class, 'organizerProfile'])->name('organizer.profile');
+
 Route::post('/checkout/apply-coupon', [CheckoutController::class, 'applyCoupon'])->name('checkout.apply-coupon');
 Route::get('/checkout/{event}', [CheckoutController::class, 'create'])->name('checkout.create');
 Route::post('/checkout/{event}', [CheckoutController::class, 'store'])->name('checkout.store');

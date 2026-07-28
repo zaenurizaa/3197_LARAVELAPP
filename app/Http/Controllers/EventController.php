@@ -110,4 +110,23 @@ class EventController extends Controller
 
         return view('layout.ticket', compact('transaction', 'transactions', 'categories'));
     }
+
+    /**
+     * Menampilkan profil publik Penyelenggara (Tenant) beserta rekam jejak ulasan
+     */
+    public function organizerProfile(string $slug): View
+    {
+        $tenant = \App\Models\Tenant::where('slug', $slug)->firstOrFail();
+        $categories = Category::all();
+
+        // Acara aktif penyelenggara
+        $activeEvents = $tenant->events()->where('date', '>=', now())->latest()->get();
+
+        // Rekam jejak ulasan dari semua acara milik penyelenggara ini
+        $reviews = \App\Models\Review::whereHas('event', function ($query) use ($tenant) {
+            $query->where('tenant_id', $tenant->id);
+        })->with(['transaction'])->latest()->get();
+
+        return view('layout.organizer', compact('tenant', 'activeEvents', 'reviews', 'categories'));
+    }
 }
