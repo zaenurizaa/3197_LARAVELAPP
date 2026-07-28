@@ -254,9 +254,15 @@
                 <div id="tab-content-aktif" class="tab-content space-y-3">
                     @php
                         $successTransactions = $transactions->whereIn('status', ['success', 'settlement', 'Success', 'paid', 'used']);
+                        $activeEvents = $successTransactions->filter(function($item) {
+                            return !\Carbon\Carbon::parse($item->event->date ?? now())->isPast();
+                        });
+                        $pastEvents = $successTransactions->filter(function($item) {
+                            return \Carbon\Carbon::parse($item->event->date ?? now())->isPast();
+                        });
                     @endphp
 
-                    @forelse($successTransactions as $item)
+                    @forelse($activeEvents as $item)
                         <div class="p-4 border border-slate-100 rounded-2xl hover:border-indigo-200 transition flex flex-col gap-4 bg-white shadow-sm">
                             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div>
@@ -272,6 +278,37 @@
                                     <a href="{{ route('ticket', ['order_id' => $item->order_id]) }}"
                                         class="inline-block px-5 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs rounded-xl transition shadow-md shadow-indigo-100">
                                         Cetak E-Ticket
+                                    </a>
+                                </div>
+                            </div>
+
+                            {{-- FORM ULASAN TIDAK DITAMPILKAN DI EVENT AKTIF KARENA BELUM LEWAT --}}
+                        </div>
+                    @empty
+                        <div class="py-12 text-center">
+                            <p class="text-slate-500 text-xs font-bold">Belum ada tiket aktif saat ini.</p>
+                        </div>
+                    @endforelse
+                </div>
+
+                <!-- Content Event Lalu -->
+                <div id="tab-content-lalu" class="tab-content hidden space-y-3">
+                    @forelse($pastEvents as $item)
+                        <div class="p-4 border border-slate-100 rounded-2xl hover:border-indigo-200 transition flex flex-col gap-4 bg-white shadow-sm">
+                            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="opacity-70">
+                                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">
+                                        #{{ $item->order_id }} (Selesai)
+                                    </span>
+                                    <h3 class="text-sm font-bold text-slate-700 mt-2">{{ $item->event->title ?? 'Event Tidak Ditemukan' }}</h3>
+                                    <p class="text-xs text-slate-400 mt-1">
+                                        📅 {{ \Carbon\Carbon::parse($item->event->date ?? now())->format('d M Y, H:i') }} | 📍 {{ $item->event->location ?? 'Amikom' }}
+                                    </p>
+                                </div>
+                                <div>
+                                    <a href="{{ route('ticket', ['order_id' => $item->order_id]) }}"
+                                        class="inline-block px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs rounded-xl transition shadow-sm border border-slate-200">
+                                        Lihat Detail
                                     </a>
                                 </div>
                             </div>
@@ -323,14 +360,9 @@
                         </div>
                     @empty
                         <div class="py-12 text-center">
-                            <p class="text-slate-500 text-xs font-bold">Belum ada tiket aktif saat ini.</p>
+                            <p class="text-slate-400 text-xs font-medium">Belum ada riwayat event yang berlalu.</p>
                         </div>
                     @endforelse
-                </div>
-
-                <!-- Content Event Lalu -->
-                <div id="tab-content-lalu" class="tab-content hidden py-12 text-center">
-                    <p class="text-slate-400 text-xs font-medium">Belum ada riwayat event yang berlalu.</p>
                 </div>
 
                 <!-- Content Transaksi -->
