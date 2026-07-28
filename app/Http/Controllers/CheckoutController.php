@@ -188,9 +188,11 @@ class CheckoutController extends Controller
                 \Midtrans\Config::$is3ds        = true;
                 
                 // 🛡️ Menonaktifkan verifikasi sertifikat SSL cURL internal SDK Midtrans di lokal Laragon
+                // Kita definisikan array kosong untuk CURLOPT_HTTPHEADER (10023) agar SDK Midtrans tidak crash saat melakukan array_merge internal
                 \Midtrans\Config::$curlOptions = [
                     CURLOPT_SSL_VERIFYHOST => 0,
                     CURLOPT_SSL_VERIFYPEER => false,
+                    CURLOPT_HTTPHEADER     => [],
                 ];
 
                 $params = [
@@ -306,6 +308,7 @@ class CheckoutController extends Controller
         \Midtrans\Config::$curlOptions  = [
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_SSL_VERIFYPEER => false,
+            CURLOPT_HTTPHEADER     => [],
         ];
 
         try {
