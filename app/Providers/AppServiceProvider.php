@@ -20,8 +20,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        // 1. Force HTTPS jika menggunakan Ngrok / Proxy
-        if (str_contains(request()->getHttpHost(), 'ngrok-free.dev') || request()->header('X-Forwarded-Proto') === 'https') {
+        // 1. Force HTTPS jika menggunakan Ngrok, Vercel, atau proxy Cloud Hosting
+        if (str_contains(request()->getHttpHost(), 'ngrok-free.dev') 
+            || str_contains(request()->getHttpHost(), 'vercel.app')
+            || request()->header('X-Forwarded-Proto') === 'https') {
             URL::forceScheme('https');
         }
 
