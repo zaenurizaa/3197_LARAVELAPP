@@ -67,7 +67,22 @@ class EventController extends Controller
 
         $data['poster_path'] = $imageUrl;
 
-        Event::create($data);
+        $event = Event::create($data);
+
+        // 🔥 SIMPAN EVENT TIERS DINAMIS
+        if ($request->has('tiers')) {
+            foreach ($request->tiers as $tierData) {
+                if (!empty($tierData['name'])) {
+                    $event->tiers()->create([
+                        'name'       => $tierData['name'],
+                        'price'      => $tierData['price'] ?? 0,
+                        'stock'      => $tierData['stock'] ?? 0,
+                        'start_date' => $tierData['start_date'] ? \Carbon\Carbon::parse($tierData['start_date']) : null,
+                        'end_date'   => $tierData['end_date'] ? \Carbon\Carbon::parse($tierData['end_date']) : null,
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('admin.events.index')->with('success', 'Data Event berhasil ditambahkan.');
     }
@@ -111,6 +126,24 @@ class EventController extends Controller
         }
 
         $event->update($data);
+
+        // 🔥 UPDATE EVENT TIERS DINAMIS
+        if ($request->has('tiers')) {
+            // Hapus tier lama untuk menulis ulang yang baru (sederhana & aman dari error)
+            $event->tiers()->delete();
+            
+            foreach ($request->tiers as $tierData) {
+                if (!empty($tierData['name'])) {
+                    $event->tiers()->create([
+                        'name'       => $tierData['name'],
+                        'price'      => $tierData['price'] ?? 0,
+                        'stock'      => $tierData['stock'] ?? 0,
+                        'start_date' => $tierData['start_date'] ? \Carbon\Carbon::parse($tierData['start_date']) : null,
+                        'end_date'   => $tierData['end_date'] ? \Carbon\Carbon::parse($tierData['end_date']) : null,
+                    ]);
+                }
+            }
+        }
 
         return redirect()->route('admin.events.index')->with('success', 'Rincian data event berhasil diperbarui.');
     }
