@@ -186,6 +186,12 @@ class CheckoutController extends Controller
                 \Midtrans\Config::$isProduction = config('midtrans.is_production');
                 \Midtrans\Config::$isSanitized  = true;
                 \Midtrans\Config::$is3ds        = true;
+                
+                // 🛡️ Menonaktifkan verifikasi sertifikat SSL cURL internal SDK Midtrans di lokal Laragon
+                \Midtrans\Config::$curlOptions = [
+                    CURLOPT_SSL_VERIFYHOST => 0,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                ];
 
                 $params = [
                     'transaction_details' => [
@@ -297,6 +303,10 @@ class CheckoutController extends Controller
         \Midtrans\Config::$isProduction = config('midtrans.is_production');
         \Midtrans\Config::$isSanitized  = true;
         \Midtrans\Config::$is3ds        = true;
+        \Midtrans\Config::$curlOptions  = [
+            CURLOPT_SSL_VERIFYHOST => 0,
+            CURLOPT_SSL_VERIFYPEER => false,
+        ];
 
         try {
             $midtransStatus = (object) \Midtrans\Transaction::status($transaction->order_id);

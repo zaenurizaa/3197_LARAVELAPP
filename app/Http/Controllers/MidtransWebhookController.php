@@ -113,7 +113,9 @@ class MidtransWebhookController extends Controller
 
             Http::withHeaders([
                 'Authorization' => config('services.fonnte.token', env('FONNTE_TOKEN'))
-            ])->asForm()->post('https://api.fonnte.com/send', [
+            ])->withoutVerifying() // 🛡️ Hindari cURL error SSL local issuer di lokal Laragon
+            ->asForm()
+            ->post('https://api.fonnte.com/send', [
                 'target'      => $target,
                 'message'     => $message,
                 'countryCode' => '62'
