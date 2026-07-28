@@ -52,14 +52,20 @@
                     </td>
                     
                     <td class="px-8 py-6">
+                        @php
+                            $user = Auth::guard('admin')->user() ?? Auth::guard('organizer')->user() ?? auth()->user();
+                            $isSuperAdmin = $user ? $user->isSuperAdmin() : false;
+                            $editRoute = $isSuperAdmin ? route('admin.transactions.edit', $trx->id) : route('organizer.transactions.edit', $trx->id);
+                            $destroyRoute = $isSuperAdmin ? route('admin.transactions.destroy', $trx->id) : route('organizer.transactions.destroy', $trx->id);
+                        @endphp
                         <div class="flex justify-center gap-3">
                             
-                            <a href="{{ route('admin.transactions.edit', $trx->id) }}" 
+                            <a href="{{ $editRoute }}" 
                                class="w-10 h-10 flex items-center justify-center rounded-xl bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white transition shadow-sm">
                                 <i data-lucide="file-edit" class="w-5 h-5"></i>
                             </a>
 
-                            <form action="{{ route('admin.transactions.destroy', $trx->id) }}" method="POST" onsubmit="return confirm('Apakah kamu yakin ingin menghapus data transaksi {{ $trx->order_id }} secara permanen?')">
+                            <form action="{{ $destroyRoute }}" method="POST" onsubmit="return confirm('Apakah kamu yakin ingin menghapus data transaksi {{ $trx->order_id }} secara permanen?')">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" 

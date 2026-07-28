@@ -47,7 +47,14 @@
         </div>
     </div>
 
-    <form action="{{ route('admin.transactions.update', $transaction->id) }}" method="POST">
+    @php
+        $user = Auth::guard('admin')->user() ?? Auth::guard('organizer')->user() ?? auth()->user();
+        $isSuperAdmin = $user ? $user->isSuperAdmin() : false;
+        $updateRoute = $isSuperAdmin ? route('admin.transactions.update', $transaction->id) : route('organizer.transactions.update', $transaction->id);
+        $backRoute = $isSuperAdmin ? route('admin.transactions.index') : route('organizer.transactions.index');
+    @endphp
+
+    <form action="{{ $updateRoute }}" method="POST">
         @csrf
         @method('PUT')
 
@@ -81,7 +88,7 @@
             <button type="submit" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold text-sm shadow-md shadow-indigo-100 transition flex items-center gap-2">
                 <i data-lucide="save" class="w-4 h-4"></i> Simpan Perubahan
             </button>
-            <a href="{{ route('admin.transactions.index') }}" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-sm transition flex items-center gap-2">
+            <a href="{{ $backRoute }}" class="px-6 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-sm transition flex items-center gap-2">
                 <i data-lucide="arrow-left" class="w-4 h-4"></i> Kembali
             </a>
         </div>
