@@ -6,9 +6,9 @@
     <title>Check-in Scanner — Penjaga Pintu AmikomEventHub</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0f172a; }
+        body { font-family: 'Poppins', sans-serif; background-color: #0f172a; }
         #reader video { object-fit: cover !important; border-radius: 1.5rem; }
     </style>
 </head>
