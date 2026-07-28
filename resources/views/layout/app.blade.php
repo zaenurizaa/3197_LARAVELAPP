@@ -189,9 +189,24 @@
             <div>
                 <h4 class="text-white font-bold mb-6">Pusat Bantuan</h4>
                 <ul class="space-y-3 text-sm text-indigo-300">
-                    <li><a href="#faq" onclick="toggleHelpModal()" class="hover:text-white transition flex items-center gap-1"><span>[?]</span> FAQ Pembelian Tiket</a></li>
-                    <li><a href="#faq" onclick="toggleHelpModal()" class="hover:text-white transition flex items-center gap-1"><span>[i]</span> Cara Klaim E-Sertifikat</a></li>
-                    <li><a href="#faq" onclick="toggleHelpModal()" class="hover:text-white transition flex items-center gap-1"><span>[$]</span> Panduan Pembayaran</a></li>
+                    <li>
+                        <a href="#faq" onclick="toggleHelpModal()" class="hover:text-white transition flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>FAQ Pembelian Tiket</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#faq" onclick="toggleHelpModal()" class="hover:text-white transition flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Cara Klaim E-Sertifikat</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="#faq" onclick="toggleHelpModal()" class="hover:text-white transition flex items-center gap-2">
+                            <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 8h6m-5 0a3 3 0 110 6H9l3 3m-3-6h6m6 1a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <span>Panduan Pembayaran</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
 
