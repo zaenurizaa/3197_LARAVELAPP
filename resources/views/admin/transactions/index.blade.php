@@ -6,7 +6,7 @@
 
 @section('content')
 
-<div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden">
+<div class="bg-white rounded-[2.5rem] border border-slate-100 shadow-sm overflow-hidden mt-6">
     <div class="overflow-x-auto">
         <table class="w-full text-left border-collapse">
             <thead class="bg-slate-50 text-slate-400 uppercase text-[10px] font-black tracking-widest">
