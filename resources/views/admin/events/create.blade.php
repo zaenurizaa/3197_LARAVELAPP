@@ -24,6 +24,22 @@
             @error('title') <span class="text-red-500 text-sm mt-1 block font-semibold">{{ $message }}</span> @enderror
         </div>
 
+        {{-- Penyelenggara / Tenant (Hanya untuk Superadmin) --}}
+        @if($isSuperAdmin)
+        <div>
+            <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">Penyelenggara (Tenant)</label>
+            <select name="tenant_id" class="w-full px-5 py-4 bg-slate-50 border-2 border-slate-100 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition font-medium" required>
+                <option value="">Pilih Penyelenggara</option>
+                @foreach($tenants as $tenant)
+                    <option value="{{ $tenant->id }}" {{ old('tenant_id') == $tenant->id ? 'selected' : '' }}>
+                        {{ $tenant->name }}
+                    </option>
+                @endforeach
+            </select>
+            @error('tenant_id') <span class="text-red-500 text-sm mt-1 block font-semibold">{{ $message }}</span> @enderror
+        </div>
+        @endif
+
         {{-- Kategori --}}
         <div>
             <label class="block text-sm font-bold text-slate-700 mb-2 uppercase tracking-wide">Kategori</label>

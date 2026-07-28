@@ -39,8 +39,13 @@ class EventController extends Controller
      */
     public function create()
     {
+        $user = Auth::guard('admin')->user() ?? Auth::guard('organizer')->user() ?? auth()->user();
+        $isSuperAdmin = $user ? $user->isSuperAdmin() : false;
+
         $categories = Category::all();
-        return view('admin.events.create', compact('categories'));
+        $tenants = $isSuperAdmin ? \App\Models\Tenant::all() : [];
+
+        return view('admin.events.create', compact('categories', 'tenants', 'isSuperAdmin'));
     }
 
     /**
@@ -48,7 +53,11 @@ class EventController extends Controller
      */
     public function store(Request $request)
     {
+        $user = Auth::guard('admin')->user() ?? Auth::guard('organizer')->user() ?? auth()->user();
+        $isSuperAdmin = $user ? $user->isSuperAdmin() : false;
+
         $data = $request->validate([
+            'tenant_id'   => $isSuperAdmin ? 'required|exists:tenants,id' : 'nullable',
             'category_id' => 'required|exists:categories,id',
             'title'       => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -60,8 +69,11 @@ class EventController extends Controller
         ]);
 
         // 🔥 1. ISI TENANT_ID SECARA OTOMATIS
-        $user = Auth::user();
-        $data['tenant_id'] = $user->tenant_id; // Mengambil tenant_id milik user yang sedang buat event
+        if ($isSuperAdmin) {
+            $data['tenant_id'] = $request->tenant_id;
+        } else {
+            $data['tenant_id'] = $user->tenant_id;
+        }
 
         // 🔥 2. BUAT SLUG DARI TITLE
         $data['slug'] = Str::slug($request->title) . '-' . Str::random(5);
