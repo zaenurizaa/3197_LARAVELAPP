@@ -7,7 +7,7 @@
             size: 297mm 210mm;
             margin: 0;
         }
-        * { margin: 0; padding: 0; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: Helvetica, Arial, sans-serif;
             background-color: #0f172a;
@@ -19,13 +19,13 @@
         .page {
             width: 297mm;
             height: 210mm;
-            padding: 10mm;
+            padding: 8mm; /* Dikurangi sedikit */
         }
         .frame {
-            width: 277mm;
-            height: 190mm;
+            width: 281mm;
+            height: 194mm;
             border: 3px solid #6366f1;
-            padding: 3mm;
+            padding: 2mm;
         }
         .inner {
             width: 100%;
@@ -33,10 +33,10 @@
             border: 1px solid #334155;
             background-color: #1e293b;
             text-align: center;
-            padding: 25mm 35mm 15mm 35mm;
+            padding: 18mm 30mm 10mm 30mm; /* Padding dalam diturunkan agar menghemat space vertikal */
         }
         .header-text {
-            font-size: 12pt;
+            font-size: 11pt;
             font-weight: bold;
             color: #818cf8;
             letter-spacing: 5px;
@@ -44,34 +44,34 @@
             text-decoration: underline;
         }
         .proudly-text {
-            font-size: 10pt;
+            font-size: 9pt;
             color: #94a3b8;
             font-style: italic;
-            margin-top: 16px;
+            margin-top: 12px;
         }
         .attendee-name {
-            font-size: 30pt;
+            font-size: 26pt; /* Font name diturunkan agar stabil */
             font-weight: bold;
             color: #ffffff;
-            margin-top: 12px;
+            margin-top: 10px;
             line-height: 1.2;
         }
         .has-completed {
-            font-size: 10pt;
+            font-size: 9pt;
             color: #94a3b8;
-            margin-top: 12px;
+            margin-top: 10px;
         }
         .event-name {
-            font-size: 15pt;
+            font-size: 14pt;
             font-weight: bold;
             color: #818cf8;
             font-style: italic;
-            margin-top: 8px;
+            margin-top: 6px;
         }
         .organized-by {
-            font-size: 10pt;
+            font-size: 9pt;
             color: #94a3b8;
-            margin-top: 6px;
+            margin-top: 4px;
         }
         .organizer-val {
             font-weight: bold;
@@ -80,53 +80,53 @@
         .bottom-bar {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 30px;
+            margin-top: 20px; /* Margin diperkecil agar tidak meluber */
         }
         .bottom-bar td {
             vertical-align: bottom;
-            padding: 4px 8px;
+            padding: 2px 6px;
         }
         .lbl {
-            font-size: 7pt;
+            font-size: 6.5pt;
             color: #64748b;
             text-transform: uppercase;
             letter-spacing: 1.5px;
             font-weight: bold;
         }
         .val {
-            font-size: 10pt;
+            font-size: 9pt;
             color: #f1f5f9;
             font-weight: bold;
             margin-top: 2px;
         }
         .val-mono {
-            font-size: 7pt;
+            font-size: 6.5pt;
             color: #94a3b8;
             font-family: 'Courier New', Courier, monospace;
             margin-top: 2px;
         }
         .qr-box {
             background-color: #ffffff;
-            padding: 5px;
+            padding: 4px;
             border-radius: 4px;
             display: inline-block;
         }
         .qr-img {
-            width: 55px;
-            height: 55px;
+            width: 48px;
+            height: 48px;
         }
         .badge {
             display: inline-block;
-            padding: 6px 16px;
+            padding: 5px 12px;
             border: 2px solid #6366f1;
             border-radius: 8px;
             color: #a5b4fc;
-            font-size: 9pt;
+            font-size: 8pt;
             font-weight: bold;
             letter-spacing: 1px;
         }
         .badge-label {
-            font-size: 7pt;
+            font-size: 6.5pt;
             color: #64748b;
             font-style: italic;
         }
@@ -154,7 +154,7 @@
                     <tr>
                         <td style="width: 22%; text-align: left;">
                             <div class="qr-box">
-                                <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=110x110&data={{ urlencode($ticket_code) }}" alt="QR">
+                                <img class="qr-img" src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data={{ urlencode($ticket_code) }}" alt="QR">
                             </div>
                             <div class="val-mono">{{ $ticket_code }}</div>
                             <div class="lbl">Scan to verify</div>

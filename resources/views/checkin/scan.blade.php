@@ -243,9 +243,6 @@
                     document.getElementById('counter-success').innerText = successCount;
                     playBeep('success');
 
-                    bodyEl.classList.add('success-flash');
-                    setTimeout(() => bodyEl.classList.remove('success-flash'), 800);
-
                     resBox.className = "p-6 rounded-3xl border-2 border-emerald-500 bg-emerald-950/90 text-emerald-100 text-center shadow-2xl block";
                     document.getElementById('result-icon').innerText = "✅";
                     document.getElementById('result-title').innerText = "CHECK-IN BERHASIL!";
@@ -258,11 +255,12 @@
                     document.getElementById('det-time-row').classList.remove('hidden');
                     document.getElementById('result-details').classList.remove('hidden');
 
+                    // 🔥 AUTO RESET INSTAN SETELAH 1.5 DETIK UNTUK SCAN BERIKUTNYA
+                    setTimeout(resetScanner, 1500);
+
                 } else if (res.status === 409) {
                     // TIKET SUDAH DIGUNAKAN (Double Entry)
                     playBeep('error');
-                    bodyEl.classList.add('error-flash');
-                    setTimeout(() => bodyEl.classList.remove('error-flash'), 800);
 
                     resBox.className = "p-6 rounded-3xl border-2 border-rose-500 bg-rose-950/90 text-rose-100 text-center shadow-2xl block";
                     document.getElementById('result-icon').innerText = "🚨";
@@ -276,11 +274,12 @@
                     document.getElementById('det-time-row').classList.remove('hidden');
                     document.getElementById('result-details').classList.remove('hidden');
 
+                    // 🔥 AUTO RESET INSTAN SETELAH 1.5 DETIK UNTUK SCAN BERIKUTNYA
+                    setTimeout(resetScanner, 1500);
+
                 } else {
                     // TIKET TIDAK VALID / BELUM LUNAS
                     playBeep('error');
-                    bodyEl.classList.add('error-flash');
-                    setTimeout(() => bodyEl.classList.remove('error-flash'), 800);
 
                     resBox.className = "p-6 rounded-3xl border-2 border-amber-500 bg-amber-950/90 text-amber-100 text-center shadow-2xl block";
                     document.getElementById('result-icon').innerText = "⚠️";
@@ -296,6 +295,9 @@
                     } else {
                         document.getElementById('result-details').classList.add('hidden');
                     }
+
+                    // 🔥 AUTO RESET INSTAN SETELAH 1.5 DETIK UNTUK SCAN BERIKUTNYA
+                    setTimeout(resetScanner, 1500);
                 }
             })
             .catch(err => {
@@ -303,6 +305,9 @@
                 document.getElementById('result-icon').innerText = "❌";
                 document.getElementById('result-title').innerText = "Koneksi Terputus";
                 document.getElementById('result-msg').innerText = "Gagal memverifikasi tiket karena jaringan terputus. Silakan coba kembali.";
+                
+                // Reset setelah 3 detik jika error jaringan
+                setTimeout(resetScanner, 3000);
             });
         }
 
