@@ -28,8 +28,9 @@
             
             {{-- Form Data Pemesan (Left Column - 7 cols) --}}
             <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-sm">
-                <h3 class="text-lg font-bold mb-6 text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4">
-                    <span>📦</span> Data Pemesan {{ Auth::guard('web')->check() ? '(Terisi Otomatis)' : '(Tanpa Login)' }}
+                <h3 class="text-lg font-bold mb-6 text-slate-900 flex items-center gap-2.5 border-b border-slate-100 pb-4">
+                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span>Data Pemesan {{ Auth::guard('web')->check() ? '(Terisi Otomatis)' : '(Tanpa Login)' }}</span>
                 </h3>
                 
                 <form id="checkout-form" action="{{ route('checkout.store', $event->id) }}" method="POST" class="space-y-5">
@@ -64,7 +65,7 @@
 
                     <button type="submit" id="checkout-submit-btn"
                         class="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-base shadow-xl shadow-indigo-200 hover:bg-indigo-700 active:scale-95 transition-all mt-4">
-                        {{ ($event->price == 0 || (isset($event->is_free) && $event->is_free)) ? '🎁 Klaim Tiket Gratis' : 'Lanjut ke Pembayaran' }}
+                        {{ ($event->price == 0 || (isset($event->is_free) && $event->is_free)) ? 'Klaim Tiket Gratis' : 'Lanjut ke Pembayaran' }}
                     </button>
                 </form>
             </div>
@@ -94,7 +95,7 @@
                 {{-- Active Tier Badge --}}
                 @if($event->effective_tier_name !== 'Regular')
                 <div class="flex items-center gap-3 px-4 py-3 bg-indigo-50 border border-indigo-100 rounded-2xl">
-                    <span class="text-lg">🔥</span>
+                    <svg class="w-4 h-4 text-indigo-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
                     <div class="flex-1 min-w-0">
                         <p class="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Kategori Tiket Aktif</p>
                         <p class="text-indigo-700 font-bold text-xs truncate">{{ $event->effective_tier_name }} – Rp {{ number_format($event->effective_price, 0, ',', '.') }}</p>
@@ -111,7 +112,7 @@
                     </div>
 
                     <div class="flex justify-between text-sm text-emerald-600 font-semibold" id="discount-row" style="display:none!important">
-                        <span id="discount-label">🏷️ Diskon Kupon</span>
+                        <span id="discount-label">[v] Diskon Kupon</span>
                         <span id="discount-amount">-Rp 0</span>
                     </div>
 
@@ -131,7 +132,7 @@
                 {{-- Coupon Input Box --}}
                 @if(!($event->price == 0 || (isset($event->is_free) && $event->is_free)))
                 <div class="pt-4 border-t border-slate-100">
-                    <label class="block text-xs font-bold text-slate-700 mb-2">🏷️ Punya Kode Voucher?</label>
+                    <label class="block text-xs font-bold text-slate-700 mb-2">Punya Kode Voucher?</label>
                     <div class="flex gap-2">
                         <input type="text" id="coupon_code" placeholder="Masukkan kode voucher..."
                             class="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition font-mono text-xs uppercase"
