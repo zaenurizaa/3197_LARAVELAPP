@@ -44,6 +44,9 @@ Route::post('/review/store', [CheckoutController::class, 'storeReview'])->name('
 
 Route::get('auth/google', [GoogleController::class, 'redirectToGoogle'])->name('google.login');
 Route::get('auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+Route::get('/login', [GoogleController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [GoogleController::class, 'loginManual'])->name('login.manual');
+Route::post('/register', [GoogleController::class, 'registerManual'])->name('register.manual');
 Route::post('/user/logout', [GoogleController::class, 'logout'])->name('user.logout');
 
 Route::post('/logout', [GoogleController::class, 'logout'])->name('logout');

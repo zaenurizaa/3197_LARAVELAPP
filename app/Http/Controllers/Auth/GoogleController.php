@@ -70,6 +70,63 @@ class GoogleController extends Controller
     }
 
     /**
+     * Menampilkan Halaman Login & Register Terpadu untuk Pembeli Publik
+     */
+    public function showLoginForm()
+    {
+        if (Auth::guard('web')->check()) {
+            return redirect()->route('home');
+        }
+        return view('auth.user-login');
+    }
+
+    /**
+     * Memproses Login Manual Pembeli Publik
+     */
+    public function loginManual(\Illuminate\Http\Request $request)
+    {
+        $credentials = $request->validate([
+            'email'    => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (Auth::guard('web')->attempt($credentials)) {
+            // Bersihkan guard admin/organizer jika aktif
+            if (Auth::guard('admin')->check()) Auth::guard('admin')->logout();
+            if (Auth::guard('organizer')->check()) Auth::guard('organizer')->logout();
+
+            $request->session()->regenerate();
+            return redirect()->route('home')->with('success', 'Selamat datang kembali, ' . Auth::guard('web')->user()->name);
+        }
+
+        return back()->with('error', 'Email atau Password salah.');
+    }
+
+    /**
+     * Memproses Registrasi Manual Pembeli Publik
+     */
+    public function registerManual(\Illuminate\Http\Request $request)
+    {
+        $request->validate([
+            'name'     => 'required|string|max:255',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|min:8|confirmed',
+        ]);
+
+        $user = User::create([
+            'name'     => $request->name,
+            'email'    => $request->email,
+            'password' => bcrypt($request->password),
+            'role'     => 'user',
+        ]);
+
+        Auth::guard('web')->login($user);
+        $request->session()->regenerate();
+
+        return redirect()->route('home')->with('success', 'Pendaftaran berhasil! Selamat datang, ' . $user->name);
+    }
+
+    /**
      * LOGOUT KHUSUS USER PUBLIK (Guard 'web')
      */
     public function logout()

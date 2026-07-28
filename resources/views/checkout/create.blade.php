@@ -29,7 +29,7 @@
             {{-- Form Data Pemesan (Left Column - 7 cols) --}}
             <div class="lg:col-span-7 bg-white rounded-3xl border border-slate-200 p-6 md:p-8 shadow-sm">
                 <h3 class="text-lg font-bold mb-6 text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-4">
-                    <span>📦</span> Data Pemesan (Tanpa Login)
+                    <span>📦</span> Data Pemesan {{ Auth::guard('web')->check() ? '(Terisi Otomatis)' : '(Tanpa Login)' }}
                 </h3>
                 
                 <form id="checkout-form" action="{{ route('checkout.store', $event->id) }}" method="POST" class="space-y-5">
@@ -41,7 +41,8 @@
                         <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider">Nama Lengkap</label>
                         <input type="text" id="customer_name" name="customer_name" placeholder="Masukkan nama sesuai identitas"
                             class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition font-medium text-sm text-slate-900"
-                            required value="{{ old('customer_name') }}">
+                            required value="{{ Auth::guard('web')->check() ? Auth::guard('web')->user()->name : old('customer_name') }}"
+                            {{ Auth::guard('web')->check() ? 'readonly' : '' }}>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -49,7 +50,8 @@
                             <label class="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wider">Email Aktif</label>
                             <input type="email" name="customer_email" placeholder="contoh@gmail.com"
                                 class="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-4 focus:ring-indigo-500/10 focus:border-indigo-600 outline-none transition font-medium text-sm text-slate-900"
-                                required value="{{ old('customer_email') }}">
+                                required value="{{ Auth::guard('web')->check() ? Auth::guard('web')->user()->email : old('customer_email') }}"
+                                {{ Auth::guard('web')->check() ? 'readonly' : '' }}>
                             <p class="text-[11px] text-slate-400 mt-1 font-semibold">*E-Ticket akan dikirim ke email ini</p>
                         </div>
                         <div>

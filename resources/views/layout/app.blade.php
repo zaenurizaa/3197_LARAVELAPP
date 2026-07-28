@@ -84,13 +84,12 @@
                         @csrf
                     </form>
                 </div>
-            @else
-                {{-- Jika Guest, Tampilkan Tombol Login Google --}}
-                <a href="{{ route('google.login') }}" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-md shadow-indigo-200 transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-google" viewBox="0 0 16 16">
-                      <path d="M15.545 6.558a9.42 9.42 0 0 1 .139 1.626c0 2.434-.87 4.492-2.384 5.885h.002C11.978 15.292 10.158 16 8 16A8 8 0 1 1 8 0c2.158 0 3.92.8 5.242 2.096l-1.872 1.802C10.48 2.969 9.341 2.5 8 2.5c-2.425 0-4.466 1.69-5.2 3.968a5.15 5.15 0 0 0 0 2.532c.734 2.278 2.774 3.968 5.2 3.968 1.559 0 2.68-.414 3.497-1.127a3.3 3.3 0 0 0 1.097-2.16H8v-2.6h7.545z"/>
+                {{-- Jika Guest, Tampilkan Tombol Login Terpadu --}}
+                <a href="{{ route('login') }}" class="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-4 py-2 rounded-xl shadow-md shadow-indigo-200 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
                     </svg>
-                    Continue with Google
+                    Masuk / Daftar
                 </a>
             @endif
         </div>
